@@ -57,7 +57,7 @@ public final class FileUtility {
    public static synchronized BufferedImage loadImage(String path){
       try {
          return ImageIO.read(FileUtility.class.getResource(path));
-      } catch (IOException ex) {
+      } catch (Exception ex) {
          System.err.println("Warning: resource \""+path+"\" does not exist or "
                  + "it is not in a known image format.");
          return null;

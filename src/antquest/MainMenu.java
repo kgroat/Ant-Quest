@@ -28,26 +28,13 @@ public class MainMenu extends LiveMenu{
          g.fillRect(0, 0, AQEngine.getWidth(), AQEngine.getHeight());
       }
       parent = this;
-   }
-   
-   @Override
-   public void press(KeyEvent e) {
-      throw new UnsupportedOperationException("Not supported yet.");
-   }
-
-   @Override
-   public void release(KeyEvent e) {
-      throw new UnsupportedOperationException("Not supported yet.");
-   }
-
-   @Override
-   public void render(Graphics2D g) {
-      throw new UnsupportedOperationException("Not supported yet.");
-   }
-
-   @Override
-   public void update() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      int cx = AQEngine.getWidth()/2-100, cy =AQEngine.getHeight()/2;
+      MenuBlock block = new MenuBlock(this, cx, cy, 200, 150);
+      blocks.add(block);
+      MenuElement element = new ProgressbarElement(cx+10, cy+10, 180, 30, 100, 27);
+      block.add(element);
+      element = new TextElement("Main Menu", null, cx+10, cy+45);
+      block.add(element);
    }
    
    @Override

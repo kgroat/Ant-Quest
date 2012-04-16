@@ -31,6 +31,7 @@ public final class AQEngine {
    static void start() {
       running = true;
       resize();
+      currentMode = new MainMenu();
       mainLoop = new Thread(){
          public void run(){
             while(running){
@@ -86,8 +87,9 @@ public final class AQEngine {
    }
    
    public static BufferedImage render(){
-      if(currentMode != null)
+      if(currentMode != null){
          currentMode.render(buffer.createGraphics());
+      }
       return buffer;
    }
    

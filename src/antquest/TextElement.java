@@ -17,7 +17,7 @@ import java.awt.image.*;
  */
 public class TextElement extends MenuElement{
    public static final Color DEFAULT_COLOR = new Color(210, 210, 210);
-   public static final Font DEFAULT_FONT = Font.getFont("default");
+   public static final Font DEFAULT_FONT = new Font("Times New Roman", Font.PLAIN, 12);
    protected Font font;
    protected String text;
    protected LineMetrics metrics;
@@ -38,10 +38,14 @@ public class TextElement extends MenuElement{
    
    public TextElement(String s, Font f, int tx, int ty){
       text = s;
-      font = f;
+      if(f != null)
+         font = f;
+      else
+         font = DEFAULT_FONT;
       x = tx;
       y = ty;
       color = DEFAULT_COLOR;
+      createLineMetrics();
    }
    
    @Override
@@ -72,8 +76,9 @@ public class TextElement extends MenuElement{
    
    protected void createLineMetrics(){
       Graphics2D g = (Graphics2D)FullScreenView.instance().getGraphics();
+      g.setFont(font);
       frc = g.getFontRenderContext();
-      font.getLineMetrics(text, frc);
+      metrics = font.getLineMetrics(text, frc);
    }
    
    private class ReliefPaint implements Paint{

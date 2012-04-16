@@ -35,6 +35,10 @@ public class MenuBlock extends MenuElement{
       //TODO: parse document for menu specification
    }
    
+   public void add(MenuElement me){
+      elements.add(me);
+   }
+   
    @Override
    public void render(Graphics2D g) {
       final boolean RAISED = true;
