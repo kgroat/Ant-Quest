@@ -12,7 +12,7 @@ import java.awt.Graphics2D;
  * @author Kevin
  */
 public class ProgressbarElement extends MenuElement{
-   public static final Color DEFAULT_BACKGROUND = Color.BLACK;
+   public static final Color DEFAULT_BACKGROUND = new Color(80, 80, 80);
    public static final Color DEFAULT_OUTLINE = Color.BLACK;
    public static final Color DEFAULT_FOREGROUND = Color.RED;
    protected int width, height;

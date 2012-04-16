@@ -31,9 +31,23 @@ public class MainMenu extends LiveMenu{
       int cx = AQEngine.getWidth()/2-100, cy =AQEngine.getHeight()/2;
       MenuBlock block = new MenuBlock(this, cx, cy, 200, 150);
       blocks.add(block);
-      MenuElement element = new ProgressbarElement(cx+10, cy+10, 180, 30, 100, 27);
+      MenuElement element = new ProgressbarElement(cx+10, cy+10, 180, 32, 100, 27);
       block.add(element);
-      element = new TextElement("Main Menu", null, cx+10, cy+45);
+      element = new SelectableElement("Main Menu", null, cx+10, cy+45) {
+
+         @Override
+         public void confirm() {
+            System.out.println(text);
+         }
+      };
+      block.add(element);
+      element = new SelectableElement("Other Bit", null, cx+10, cy+65) {
+
+         @Override
+         public void confirm() {
+            System.out.println(text);
+         }
+      };
       block.add(element);
    }
    

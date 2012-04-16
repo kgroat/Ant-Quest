@@ -5,6 +5,7 @@
 package antquest;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.font.FontRenderContext;
@@ -20,6 +21,10 @@ public abstract class SelectableElement extends TextElement{
    protected boolean enabled;
    protected int width, height;
    protected Color disabledColor;
+   
+   public SelectableElement(String s, Font f, int tx, int ty){
+      super(s, f, tx, ty);
+   }
    
    public void setEnabled(boolean b){
       enabled = b;

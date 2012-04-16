@@ -6,6 +6,8 @@ package antquest;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -40,7 +42,8 @@ public class LiveMenu extends GameMode{
    
    @Override
    public void press(KeyEvent e) {
-      if((InputHelper.transform(e) & InputHelper.CONFIRM) != 0){
+      int trans = InputHelper.transform(e);
+      if((trans & InputHelper.CONFIRM) != 0){
          if(selected != null){
             selected.confirm();
             //TODO: Play confirm sound
@@ -48,7 +51,7 @@ public class LiveMenu extends GameMode{
             //TODO: Play error sound
          }
       }
-      if((InputHelper.transform(e) & InputHelper.UP) != 0){
+      if((trans & InputHelper.UP) != 0){
          //<editor-fold defaultstate="collapsed" desc="Move cursor north">
          if(selected != null){
             ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
@@ -61,11 +64,13 @@ public class LiveMenu extends GameMode{
                curr = sel.get(i);
                dirDist = selected.y - curr.y;
                currDist = Math.abs(selected.x - curr.x);
-               //Make sure in the north quadrant
-               if(dirDist >= currDist){
-                  currDist += dirDist;
-                  if(currDist < bestDist){
-                     best = i;
+               if(curr != selected){
+                  //Make sure in the north quadrant
+                  if(dirDist >= currDist){
+                     currDist += dirDist;
+                     if(currDist < bestDist){
+                        best = i;
+                     }
                   }
                }
             }
@@ -82,7 +87,7 @@ public class LiveMenu extends GameMode{
          }
          //</editor-fold>
       }
-      if((InputHelper.transform(e) & InputHelper.DOWN) != 0){
+      if((trans & InputHelper.DOWN) != 0){
          //<editor-fold defaultstate="collapsed" desc="Move cursor south">
          if(selected != null){
             ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
@@ -95,11 +100,13 @@ public class LiveMenu extends GameMode{
                curr = sel.get(i);
                dirDist = curr.y - selected.y;
                currDist = Math.abs(selected.x - curr.x);
-               //Make sure in the south quadrant
-               if(dirDist >= currDist){
-                  currDist += dirDist;
-                  if(currDist < bestDist){
-                     best = i;
+               if(curr != selected){
+                  //Make sure in the south quadrant
+                  if(dirDist >= currDist){
+                     currDist += dirDist;
+                     if(currDist < bestDist){
+                        best = i;
+                     }
                   }
                }
             }
@@ -116,7 +123,7 @@ public class LiveMenu extends GameMode{
          }
          //</editor-fold>
       }
-      if((InputHelper.transform(e) & InputHelper.LEFT) != 0){
+      if((trans & InputHelper.LEFT) != 0){
          //<editor-fold defaultstate="collapsed" desc="Move cursor west">
          if(selected != null){
             ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
@@ -129,11 +136,13 @@ public class LiveMenu extends GameMode{
                curr = sel.get(i);
                dirDist = selected.x - curr.x;
                currDist = Math.abs(selected.y - curr.y);
-               //Make sure in the west quadrant
-               if(dirDist >= currDist){
-                  currDist += dirDist;
-                  if(currDist < bestDist){
-                     best = i;
+               if(curr != selected){
+                  //Make sure in the west quadrant
+                  if(dirDist >= currDist){
+                     currDist += dirDist;
+                     if(currDist < bestDist){
+                        best = i;
+                     }
                   }
                }
             }
@@ -150,7 +159,7 @@ public class LiveMenu extends GameMode{
          }
          //</editor-fold>
       }
-      if((InputHelper.transform(e) & InputHelper.RIGHT) != 0){
+      if((trans & InputHelper.RIGHT) != 0){
          //<editor-fold defaultstate="collapsed" desc="Move cursor east">
          if(selected != null){
             ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
@@ -163,11 +172,13 @@ public class LiveMenu extends GameMode{
                curr = sel.get(i);
                dirDist = curr.x - selected.x;
                currDist = Math.abs(selected.y - curr.y);
-               //Make sure in the east quadrant
-               if(dirDist >= currDist){
-                  currDist += dirDist;
-                  if(currDist < bestDist){
-                     best = i;
+               if(curr != selected){
+                  //Make sure in the east quadrant
+                  if(dirDist >= currDist){
+                     currDist += dirDist;
+                     if(currDist < bestDist){
+                        best = i;
+                     }
                   }
                }
             }
@@ -183,6 +194,9 @@ public class LiveMenu extends GameMode{
             }
          }
          //</editor-fold>
+      }
+      if((trans & InputHelper.PAUSE) != 0){
+         AQEngine.setMode(escape());
       }
    }
    
@@ -216,13 +230,15 @@ public class LiveMenu extends GameMode{
    
    @Override
    public void render(Graphics2D g) {
+      final int round = 3;
       g.drawImage(backdrop, 0, 0, null);
       for(int i=0; i<blocks.size(); i++){
          blocks.get(i).render(g);
       }
       if(selected != null){
          g.setColor(SELECT_COLOR);
-         g.fill(selected.getBounds());
+         Rectangle rect = selected.getBounds();
+         g.fillRoundRect(rect.x-round, rect.y-round, rect.width+round*2, rect.height+round*2, round*2, round*2);
       }
    }
 
