@@ -3,9 +3,10 @@ package antquest;
 import java.util.*;
 
 
-public class Character 
+abstract public class Character 
 {
-    protected int hp, ap, def, mdef, react, atk, mage, acc;
-    protected String character_name;
-    protected ArrayList<String> skills;
+    protected Weapon weapon, offhand;
+    protected Armor midbody, lowbody;
+    protected Accesory acc1, acc2, acc3;
+    
 }
