@@ -25,19 +25,19 @@ public class QuittingMode extends LiveMenu{
       blocks.add(block);
       MenuElement element = new TextElement("Are you sure you want to quit?", TextElement.HEADING, cx+110, cy+10, TextElement.CENTER);
       block.add(element);
-      element = new SelectableElement("Screw this!", null, cx+110, cy+45, TextElement.CENTER) {
-
-         @Override
-         public void confirm() {
-            FullScreenView.instance().closeProgram();
-         }
-      };
-      block.add(element);
       element = new SelectableElement("NO!  I didn't mean to!", null, cx+110, cy+65, TextElement.CENTER) {
 
          @Override
          public void confirm() {
             AQEngine.setMode(escape());
+         }
+      };
+      block.add(element);
+      element = new SelectableElement("Screw this!", null, cx+110, cy+45, TextElement.CENTER) {
+
+         @Override
+         public void confirm() {
+            FullScreenView.instance().closeProgram();
          }
       };
       block.add(element);

@@ -16,10 +16,28 @@ import java.awt.image.*;
  * @author Kevin
  */
 public class TextElement extends MenuElement{
-   public static final Font HEADING = new Font("Times New Roman", Font.BOLD, 15);
-   public static final Font MENU_FONT = new Font("Times New Roman", Font.BOLD, 20);
+   static{
+      createFont("/antquest/resources/MEANSANS.TTF");
+      createFont("/antquest/resources/Something.ttf");
+      createFont("/antquest/resources/Thor.ttf");
+   }
+   private static Font createFont(String s){
+      try{
+         return Font.createFont(Font.TRUETYPE_FONT, FileUtility.loadStream(s));
+      }catch(Exception e){
+         e.printStackTrace();
+         return null;
+      }
+   }
+   
+   public static final Font THOR = createFont("/antquest/resources/Thor.ttf");
+   public static final Font MEAN = createFont("/antquest/resources/MEANSANS.TTF");
+   public static final Font SOMETHING = createFont("/antquest/resources/Something.ttf");
+   
+   public static final Font HEADING = new Font("", Font.BOLD, 15);//SOMETHING.deriveFont(Font.BOLD, 15);
+   public static final Font MENU_FONT = new Font("", Font.BOLD, 20);//SOMETHING.deriveFont(Font.BOLD, 20);
+   public static final Font DEFAULT_FONT = new Font("", Font.PLAIN, 12);//SOMETHING.deriveFont(Font.PLAIN, 12);
    public static final Color DEFAULT_COLOR = new Color(50, 50, 120);
-   public static final Font DEFAULT_FONT = new Font("Times New Roman", Font.PLAIN, 12);
    public static final int LEFT_JUSTIFIED = 0;
    public static final int CENTER = 1;
    public static final int RIGHT_JUSTIFIED = 2;
