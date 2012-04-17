@@ -33,7 +33,7 @@ public class MainMenu extends LiveMenu{
       blocks.add(block);
       MenuElement element = new ProgressbarElement(cx+10, cy+10, 180, 32, 100, 27);
       block.add(element);
-      element = new SelectableElement("Main Menu", null, cx+10, cy+45) {
+      element = new SelectableElement("I'm 12.  What is this?", TextElement.MENU_FONT, cx+100, cy+45, TextElement.CENTER) {
 
          @Override
          public void confirm() {
@@ -41,7 +41,7 @@ public class MainMenu extends LiveMenu{
          }
       };
       block.add(element);
-      element = new SelectableElement("Other Bit", null, cx+10, cy+65) {
+      element = new SelectableElement("I am ultra-pro!", TextElement.MENU_FONT, cx+100, cy+70, TextElement.CENTER) {
 
          @Override
          public void confirm() {
@@ -49,10 +49,27 @@ public class MainMenu extends LiveMenu{
          }
       };
       block.add(element);
+      element = new SelectableElement("Y  U  NO...?", TextElement.MENU_FONT, cx+100, cy+95, TextElement.CENTER) {
+
+         @Override
+         public void confirm() {
+            System.out.println(text);
+         }
+      };
+      block.add(element);
+      element = new SelectableElement("Toodleoo", TextElement.MENU_FONT, cx+100, cy+120, TextElement.CENTER) {
+
+         @Override
+         public void confirm() {
+            AQEngine.setMode(new QuittingMode(parent));
+         }
+      };
+      block.add(element);
+      selectDefault();
    }
    
    @Override
    public GameMode escape(){
-      return new QuittingMode();
+      return new QuittingMode(this);
    }
 }

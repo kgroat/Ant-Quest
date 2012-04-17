@@ -77,10 +77,15 @@ public class FullScreenView extends JFrame {
             release(ke);
          }
       });
+      this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
       addWindowListener(new WindowAdapter(){
          @Override
          public void windowClosing(WindowEvent e) {
-            closeProgram();
+            GameMode gm;
+            if((gm = AQEngine.getCurrentMode()) instanceof QuittingMode)
+               closeProgram();
+            else
+               AQEngine.setMode(new QuittingMode(gm));
          }
       });
 

@@ -16,27 +16,37 @@ import java.awt.image.*;
  * @author Kevin
  */
 public class TextElement extends MenuElement{
-   public static final Color DEFAULT_COLOR = new Color(210, 210, 210);
+   public static final Font HEADING = new Font("Times New Roman", Font.BOLD, 15);
+   public static final Font MENU_FONT = new Font("Times New Roman", Font.BOLD, 20);
+   public static final Color DEFAULT_COLOR = new Color(50, 50, 120);
    public static final Font DEFAULT_FONT = new Font("Times New Roman", Font.PLAIN, 12);
+   public static final int LEFT_JUSTIFIED = 0;
+   public static final int CENTER = 1;
+   public static final int RIGHT_JUSTIFIED = 2;
    protected Font font;
    protected String text;
    protected LineMetrics metrics;
    protected Color color;
    protected FontRenderContext frc;
+   protected int width, height;
    
    public TextElement(){
-      this("TextElement", DEFAULT_FONT, 0, 0);
+      this("TextElement", DEFAULT_FONT, 0, 0, LEFT_JUSTIFIED);
    }
    
    public TextElement(int tx, int ty){
-      this("TextElement", DEFAULT_FONT, tx, ty);
+      this("TextElement", DEFAULT_FONT, tx, ty, LEFT_JUSTIFIED);
    }
    
    public TextElement(String s, Font f){
-      this(s, f, 0, 0);
+      this(s, f, 0, 0, LEFT_JUSTIFIED);
    }
    
    public TextElement(String s, Font f, int tx, int ty){
+      this(s, f, tx, ty, LEFT_JUSTIFIED);
+   }
+   
+   public TextElement(String s, Font f, int tx, int ty, int loc){
       text = s;
       if(f != null)
          font = f;
@@ -44,8 +54,16 @@ public class TextElement extends MenuElement{
          font = DEFAULT_FONT;
       x = tx;
       y = ty;
-      color = DEFAULT_COLOR;
       createLineMetrics();
+      switch(loc){
+         case CENTER:
+            x = tx - width/2;
+            break;
+         case RIGHT_JUSTIFIED:
+            x = tx - width;
+            break;
+      }
+      color = DEFAULT_COLOR;
    }
    
    @Override
@@ -62,6 +80,8 @@ public class TextElement extends MenuElement{
 //         }
 //      });
       //g.draw(rend);
+      g.setFont(font);
+      g.setColor(color);
       g.drawString(text, x, y+metrics.getAscent());
    }
    
@@ -79,6 +99,19 @@ public class TextElement extends MenuElement{
       g.setFont(font);
       frc = g.getFontRenderContext();
       metrics = font.getLineMetrics(text, frc);
+      Rectangle2D r = font.getStringBounds(text, frc);
+      width = (int)r.getWidth();
+      height = (int)r.getHeight();
+   }
+   
+   @Override
+   public int getX(){
+      return x + width/2;
+   }
+   
+   @Override
+   public int getY(){
+      return y + height/2;
    }
    
    private class ReliefPaint implements Paint{

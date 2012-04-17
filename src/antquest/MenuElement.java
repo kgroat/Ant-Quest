@@ -23,5 +23,13 @@ public abstract class MenuElement {
       y = ty;
    }
    
+   public int getX(){
+      return x;
+   }
+   
+   public int getY(){
+      return y;
+   }
+   
    public abstract void render(Graphics2D g);
 }

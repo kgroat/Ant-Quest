@@ -19,23 +19,18 @@ public abstract class SelectableElement extends TextElement{
    public static final Color DEFAULT_DISABLED = new Color(100, 100, 100, 150);
    
    protected boolean enabled;
-   protected int width, height;
    protected Color disabledColor;
    
    public SelectableElement(String s, Font f, int tx, int ty){
       super(s, f, tx, ty);
    }
    
-   public void setEnabled(boolean b){
-      enabled = b;
+   public SelectableElement(String s, Font f, int tx, int ty, int loc){
+      super(s, f, tx, ty, loc);
    }
    
-   @Override
-   protected void createLineMetrics(){
-      super.createLineMetrics();
-      Rectangle2D rect = font.getStringBounds(text, frc);
-      width = (int)rect.getWidth();
-      height = (int)rect.getHeight();
+   public void setEnabled(boolean b){
+      enabled = b;
    }
    
    @Override

@@ -48,10 +48,10 @@ public class MenuBlock extends MenuElement{
          //Temporary scaled backdrop
          g.setColor(backdropColor);
          int var = Math.min(width, height);
-         int tx = x+var-(var*parent.frame/LiveMenu.FRAME_LENGTH);
-         int ty = y+var-(var*parent.frame/LiveMenu.FRAME_LENGTH);
-         int tw = width-(var*parent.frame/LiveMenu.FRAME_LENGTH);
-         int th = height-(var*parent.frame/LiveMenu.FRAME_LENGTH);
+         int tx = x+var/2-(var*parent.frame/LiveMenu.FRAME_LENGTH/2);
+         int ty = y+var/2-(var*parent.frame/LiveMenu.FRAME_LENGTH/2);
+         int tw = width-var+(var*parent.frame/LiveMenu.FRAME_LENGTH);
+         int th = height-var+(var*parent.frame/LiveMenu.FRAME_LENGTH);
          g.fill3DRect(tx, ty, tw, th, RAISED);
       }else{
          //When blocks finish growing, they show their content

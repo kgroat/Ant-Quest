@@ -62,14 +62,15 @@ public class LiveMenu extends GameMode{
             SelectableElement curr;
             for(int i=0; i<sel.size(); i++){
                curr = sel.get(i);
-               dirDist = selected.y - curr.y;
-               currDist = Math.abs(selected.x - curr.x);
+               dirDist = selected.getY() - curr.getY();
+               currDist = Math.abs(selected.getX() - curr.getX());
                if(curr != selected){
                   //Make sure in the north quadrant
                   if(dirDist >= currDist){
                      currDist += dirDist;
                      if(currDist < bestDist){
                         best = i;
+                        bestDist = currDist;
                      }
                   }
                }
@@ -98,14 +99,15 @@ public class LiveMenu extends GameMode{
             SelectableElement curr;
             for(int i=0; i<sel.size(); i++){
                curr = sel.get(i);
-               dirDist = curr.y - selected.y;
-               currDist = Math.abs(selected.x - curr.x);
+               dirDist = curr.getY() - selected.getY();
+               currDist = Math.abs(selected.getX() - curr.getX());
                if(curr != selected){
                   //Make sure in the south quadrant
                   if(dirDist >= currDist){
                      currDist += dirDist;
                      if(currDist < bestDist){
                         best = i;
+                        bestDist = currDist;
                      }
                   }
                }
@@ -134,14 +136,15 @@ public class LiveMenu extends GameMode{
             SelectableElement curr;
             for(int i=0; i<sel.size(); i++){
                curr = sel.get(i);
-               dirDist = selected.x - curr.x;
-               currDist = Math.abs(selected.y - curr.y);
+               dirDist = selected.getX() - curr.getX();
+               currDist = Math.abs(selected.getY() - curr.getY());
                if(curr != selected){
                   //Make sure in the west quadrant
                   if(dirDist >= currDist){
                      currDist += dirDist;
                      if(currDist < bestDist){
                         best = i;
+                        bestDist = currDist;
                      }
                   }
                }
@@ -170,14 +173,15 @@ public class LiveMenu extends GameMode{
             SelectableElement curr;
             for(int i=0; i<sel.size(); i++){
                curr = sel.get(i);
-               dirDist = curr.x - selected.x;
-               currDist = Math.abs(selected.y - curr.y);
+               dirDist = curr.getX() - selected.getX();
+               currDist = Math.abs(selected.getY() - curr.getY());
                if(curr != selected){
                   //Make sure in the east quadrant
                   if(dirDist >= currDist){
                      currDist += dirDist;
                      if(currDist < bestDist){
                         best = i;
+                        bestDist = currDist;
                      }
                   }
                }
@@ -229,13 +233,13 @@ public class LiveMenu extends GameMode{
    }
    
    @Override
-   public void render(Graphics2D g) {
+   public synchronized void render(Graphics2D g) {
       final int round = 3;
       g.drawImage(backdrop, 0, 0, null);
       for(int i=0; i<blocks.size(); i++){
          blocks.get(i).render(g);
       }
-      if(selected != null){
+      if(selected != null && frame >= FRAME_LENGTH){
          g.setColor(SELECT_COLOR);
          Rectangle rect = selected.getBounds();
          g.fillRoundRect(rect.x-round, rect.y-round, rect.width+round*2, rect.height+round*2, round*2, round*2);
