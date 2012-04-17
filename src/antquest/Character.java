@@ -1,13 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package antquest;
 
-/**
- *
- * @author rdragon84
- */
-public class Character {
-    
+package antquest;
+import java.util.*;
+
+
+public class Character 
+{
+    protected int hp, ap, def, mdef, react, atk, mage, acc;
+    protected String character_name;
+    protected ArrayList<String> skills;
 }
