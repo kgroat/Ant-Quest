@@ -53,9 +53,55 @@ public class FullScreenView extends JFrame {
     * @param args - unused - -
     */
    public static void main(String[] args) throws IOException {
-      if (instance == null) {
-         instance = new FullScreenView(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice());
+      if (args != null && args.length > 0 && args[0].toLowerCase().endsWith("proper")) {
+         if (instance == null) {
+            instance = new FullScreenView(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice());
+         }
+      }else{
+         Runtime r = Runtime.getRuntime();
+         String s = FullScreenView.class.getProtectionDomain().getCodeSource().getLocation().toString();
+         
+         String nativedir = findLibPath();
+         final Process p;
+         if(s.endsWith(".jar")){
+            s = s.substring(s.lastIndexOf("/")+1);
+            System.out.println(s);
+            p = r.exec("java -classpath lib"+File.separator+" -Dorg.lwjgl.util.Debug=true -Djava.library.path=lib"+File.separator+"native"+File.separator+nativedir+File.separator+" -jar "+s+" -proper");
+         }else{
+            s = "build/classes/"+"dwimmer"+File.separator+"FullScreenView";
+            System.out.println(s);
+            p = r.exec("java -classpath lib"+File.separator+" -Dorg.lwjgl.util.Debug=true -Djava.library.path=lib"+File.separator+"native"+File.separator+nativedir+File.separator+" "+s+" -proper");
+         }
+         
+         if(p!=null){
+            Scanner er = new Scanner(p.getErrorStream());
+            Scanner ot = new Scanner(p.getInputStream());
+            while(er.hasNext() || ot.hasNext()){
+               if(er.hasNext())
+                  System.out.println(er.nextLine());
+               if(ot.hasNext())
+                  System.out.println(ot.nextLine());
+            }
+         }
+         
+         //File f = new File(class.getProtect);
       }
+   }
+   
+   private static String findLibPath(){
+      Properties p = System.getProperties();
+      p.list(System.out);
+      String t = p.getProperty("os.name").toLowerCase();
+      if(t.contains("mac")){
+         return "macosx";
+      }
+      if(t.contains("windows")){
+         return "windows";
+      }
+      if(t.contains("solaris")){
+         return "solaris";
+      }
+      return "linux";
    }
    
    /**
