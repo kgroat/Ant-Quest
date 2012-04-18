@@ -1,0 +1,66 @@
+TODO:
+	Make AI mo' bettah
+		Get distances / charges more accurate to make attacks better
+		Test to make sure they don't dance anymore (should be fixed)
+			Keep fixing: AI still dances (much less common), but only for short periods of time (probably from close proximity cases)
+				May be fixed now, needs more testing
+		Make like-teamed AI more likely to stick together
+		Fix pathfinding bug caused by map-wrapping
+	Make loose ends compatible with wrapped map (Such as fixing pathfinding)
+	Make shockwave particles
+	Add more SFX
+		HomingMissile charging sound
+		Missile spawning sound (x5? - so spawning lots of HomingMissiles sounds impressive)
+		Missile explosion sound
+		Birds' wings flapping
+		Bird spawning noise
+		Dwarf pain sounds (x5? - so multiple dwarves can make hurty-sounds simultaneously)
+		Footstep sounds (x10? - so enemies can be heard, too)
+		Collision sounds
+		No gems remaining sound (when player tries to charge a spell for which he doesn't have enough gems)
+			(Should charging sounds have multiples?  Maybe at least copies of the same clip)
+			(Some of these can be procedural, too.  Charging would be a great one for that)
+	Make AI for each of the different colored wizards
+	Make rendered image size compatible with *nix / Gnome interfaces (inset issue?)
+	Add intro screen / start menu
+	Spawn baddies constantly (not just once at the beginning)
+	Render Dwarf name tags
+	Add obstacles (maybe mazes or predefined settings, probably rocks and / or lava pits)
+	Add victory condition
+		...and mod AI accordingly  D: D: D:
+	Add other basic attack options (weapons?)
+	Add options menu
+		Add audio balancing (technical support already implemented)
+		Add keymapping (technical support already implemented)
+		Add playertag choice (technical support already implemented)
+	Make server for multiplayer support
+	...and probably more
+	
+Progress this build:
+	Fixed visual bug (at wrapping seams, the wrong things were being drawn first)
+		(Needs more tweaking, may still be seeing visual errors)
+	
+Previous progress:
+	Made progress on the AI
+		They attack each other!
+		Gave instructions if they have no gems, no target, or both
+		AI no longer tries to hit Missiles with fire
+		AI run away when low on health
+		AI panic when target is too close
+		Fixed AI tracking / pathing bug
+		Fixed two major target acquisition bugs
+	Added base case for loader if properties hadn't been properly set (e.g. auto-loads natives and libs)
+	Fixed minor bug with OGG support
+	Fixed bug with HomingMissile targeting
+	Added OGG support (Horray for decreased audio file sizes - by a factor of more than 10!)
+	Wizards now drop the gems they had charged
+	Map wraps (currently 3200x3200, easily changeable with final values in DwimmerEngine)
+	Map view now has easy-to-alter final values in DwimmerEngine (current range is 1600x1600 rendered on 80x80 grid)
+	Made SFX dynamic in velocity and location
+	Made SFX only play if locale is more pertinent than the current (e.g. if it's closer)
+	Added some SFX
+		(temporary) Fire sound effects (x5)
+		(temporary) shockwave release sound (x3)
+		(temporary) Shockwave charging sound (currently unsynchronized and only for player)
+		
+	Too much else to list ^_^
