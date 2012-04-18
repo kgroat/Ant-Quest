@@ -1,7 +1,0 @@
-LWJGL: proprietary, open source
-JInput: proprietary, open source
-JOgg & JOrbis: GNU LGPL v2.1
-OggInputStream: none / unknown, open source
-OpenAL: GNU LGPL v2
-LZMA: GNU LGPL and CPL w/ modification
-JOGL: BSD License w/ modification

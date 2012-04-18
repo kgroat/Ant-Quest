@@ -17,7 +17,10 @@ import java.util.Scanner;
  *
  * @author Kevin
  */
-public class LiveMenu extends GameMode{
+public class LiveMenu_1 extends GameMode{
+   public static final AudioClip CONFIRM = AudioClip.get("Select1.ogg");
+   public static final AudioClip CURSOR = AudioClip.get("CursorMove.ogg");
+   public static final AudioClip ERROR = AudioClip.get("Error1.ogg");
    public static final Color SELECT_COLOR = new Color(150, 150, 250, 100);
    public static final int FRAME_LENGTH = 10;
    protected GameMode parent;
@@ -27,7 +30,7 @@ public class LiveMenu extends GameMode{
    protected boolean leaving;
    protected BufferedImage backdrop;
 
-   public LiveMenu(GameMode p, BufferedImage bd){
+   public LiveMenu_1(GameMode p, BufferedImage bd){
       parent = p;
       backdrop = bd;
       frame = 0;
@@ -46,9 +49,9 @@ public class LiveMenu extends GameMode{
       if((trans & InputHelper.CONFIRM) != 0){
          if(selected != null){
             selected.confirm();
-            //TODO: Play confirm sound
+            CONFIRM.forcePlay(true, false);
          }else{
-            //TODO: Play error sound
+            ERROR.forcePlay(true, false);
          }
       }
       if((trans & InputHelper.UP) != 0){
@@ -76,14 +79,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }else{
                selected = sel.get(best);
-               //TODO: Play cursor move sound
+               CURSOR.forcePlay(true, false);
             }
          }else{
             if(!selectDefault()){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }
          }
          //</editor-fold>
@@ -113,14 +116,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }else{
                selected = sel.get(best);
-               //TODO: Play cursor move sound
+               CURSOR.forcePlay(true, false);
             }
          }else{
             if(!selectDefault()){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }
          }
          //</editor-fold>
@@ -150,14 +153,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }else{
                selected = sel.get(best);
-               //TODO: Play cursor move sound
+               CURSOR.forcePlay(true, false);
             }
          }else{
             if(!selectDefault()){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }
          }
          //</editor-fold>
@@ -187,14 +190,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }else{
                selected = sel.get(best);
-               //TODO: Play cursor move sound
+               CURSOR.forcePlay(true, false);
             }
          }else{
             if(!selectDefault()){
-               //TODO: Play error sound
+               ERROR.forcePlay(true, false);
             }
          }
          //</editor-fold>
@@ -226,9 +229,9 @@ public class LiveMenu extends GameMode{
       MenuElement tmp;
       if((tmp = blocks.get(block).get(num)) instanceof SelectableElement){
          selected = (SelectableElement)tmp;
-         //TODO: Play move cursor sound
+         CURSOR.forcePlay(true, false);
       }else{
-         //TODO: Play error sound
+         ERROR.forcePlay(true, false);
       }
    }
    
