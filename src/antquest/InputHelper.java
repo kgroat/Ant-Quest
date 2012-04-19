@@ -23,15 +23,15 @@ public final class InputHelper {
    public static final int RUN =       0x00000100;
    public static final int SELECT =    0x00000200;
    
-   private static int confirm = VK_J,
-                       cancel = VK_N,
-                           up = VK_W,
-                         down = VK_S,
-                         left = VK_A,
-                        right = VK_D,
+   private static int confirm = VK_Z,
+                       cancel = VK_X,
+                           up = VK_UP,
+                         down = VK_DOWN,
+                         left = VK_LEFT,
+                        right = VK_RIGHT,
                          menu = VK_SPACE,
                         pause = VK_ESCAPE,
-                          run = VK_I,
+                          run = VK_C,
                        select = VK_P;
    
    public static int transform(KeyEvent e){

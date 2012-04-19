@@ -144,14 +144,16 @@ public class AudioClip {
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
                   waveFile = WaveData.create(FileUtility.loadURL(LOC+names[i]));
                   AL10.alBufferData(buffer.get(i), waveFile.format, waveFile.data, waveFile.samplerate);
-                  millis[i] = waveFile.data.capacity()*250l/waveFile.samplerate;
+                  millis[i] = waveFile.data.capacity()*((waveFile.format == AL10.AL_FORMAT_STEREO16)?250L:((waveFile.format != AL10.AL_FORMAT_MONO8)?500L:1000L))/waveFile.samplerate;
+                  System.out.println(waveFile.format);
                   System.out.println(millis[i]);
                   waveFile.dispose();
                }else if(names[i].toLowerCase().endsWith(".ogg")){
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
                   oggFile = new OggData(FileUtility.loadURL(LOC+names[i]));
                   AL10.alBufferData(buffer.get(i), oggFile.format, oggFile.data, oggFile.samplerate);
-                  millis[i] = oggFile.data.capacity()*250l/oggFile.samplerate;
+                  millis[i] = oggFile.data.capacity()*((oggFile.format == AL10.AL_FORMAT_STEREO16)?250L:((oggFile.format != AL10.AL_FORMAT_MONO8)?500L:1000L))/oggFile.samplerate;
+                  System.out.println(oggFile.format);
                   System.out.println(millis[i]);
                }
             }
