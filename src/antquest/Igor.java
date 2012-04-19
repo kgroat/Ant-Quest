@@ -2,7 +2,7 @@
 package antquest;
 
 
-public class Igor extends Character
+public class Igor extends PlayableCharacter
 {
     public Igor()
     {

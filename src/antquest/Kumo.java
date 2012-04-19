@@ -2,7 +2,7 @@
 package antquest;
 
 
-public class Kumo extends Character
+public class Kumo extends PlayableCharacter
 {
     public Kumo()
     {

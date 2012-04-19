@@ -1,7 +1,7 @@
 package antquest;
 
 
-public class Gunther extends Character
+public class Gunther extends PlayableCharacter
 {
     public Gunther()
     {

@@ -1,7 +1,7 @@
 package antquest;
 
 
-public class Sai extends Character
+public class Sai extends PlayableCharacter
 {
     public Sai()
     {

@@ -4,13 +4,15 @@
  */
 package antquest.items;
 
+import antquest.PlayableCharacter;
+
 /**
  *
  * @author Kevin
  */
 public abstract class Equippable extends Item{
    
-   public abstract void onEquip(Character c);
+   public abstract void onEquip(PlayableCharacter c);
    
-   public abstract void onUnequip(Character c);
+   public abstract void onUnequip(PlayableCharacter c);
 }

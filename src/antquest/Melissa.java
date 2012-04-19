@@ -1,7 +1,7 @@
 package antquest;
 
 
-public class Melissa extends Character
+public class Melissa extends PlayableCharacter
 {
     public Melissa()
     {

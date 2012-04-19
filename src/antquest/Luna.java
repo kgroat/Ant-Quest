@@ -1,7 +1,7 @@
 package antquest;
 
 
-public class Luna extends Character
+public class Luna extends PlayableCharacter
 {
     public Luna()
     {

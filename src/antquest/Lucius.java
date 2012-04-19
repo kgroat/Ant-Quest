@@ -1,7 +1,7 @@
 
 package antquest;
 
-public class Lucius extends Character
+public class Lucius extends PlayableCharacter
 {
     public Lucius()
     {

@@ -4,10 +4,19 @@
  */
 package antquest.items;
 
+import antquest.PlayableCharacter;
 /**
  *
  * @author Kevin
  */
 public abstract class LowerArmor extends Armor{
-   
+   public static final LowerArmor CHAINMAIL = new LowerArmor(){
+
+        public void onEquip(PlayableCharacter c) {
+        }
+
+        public void onUnequip(PlayableCharacter c) {
+        }
+       
+   };
 }

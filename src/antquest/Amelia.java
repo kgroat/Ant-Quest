@@ -1,6 +1,6 @@
 package antquest;
 
-public class Amelia extends Character 
+public class Amelia extends PlayableCharacter 
 {
     public Amelia()
     {

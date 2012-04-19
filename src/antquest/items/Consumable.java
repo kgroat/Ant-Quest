@@ -4,6 +4,8 @@
  */
 package antquest.items;
 
+import antquest.Entity;
+
 /**
  *
  * @author Kevin

@@ -1,6 +1,6 @@
 package antquest;
 
-public class Isra extends Character 
+public class Isra extends PlayableCharacter 
 {
     public Isra()
     {
