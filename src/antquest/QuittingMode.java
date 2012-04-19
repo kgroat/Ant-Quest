@@ -6,12 +6,15 @@ package antquest;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Kevin
  */
 public class QuittingMode extends LiveMenu{
+   public static final AudioClip LEAVE = AudioClip.get("Select1.ogg");
    public static final Color FEINT = new Color(0, 0, 0, 100);
 
    public QuittingMode(GameMode p){
@@ -37,6 +40,12 @@ public class QuittingMode extends LiveMenu{
 
          @Override
          public void confirm() {
+            try {
+               LEAVE.forcePlay(true, true);
+               Thread.sleep(LEAVE.getMillis());
+            } catch (InterruptedException ex) {
+               Logger.getLogger(QuittingMode.class.getName()).log(Level.SEVERE, null, ex);
+            }
             FullScreenView.instance().closeProgram();
          }
       };

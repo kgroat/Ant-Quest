@@ -18,9 +18,6 @@ import java.util.Scanner;
  * @author Kevin
  */
 public class LiveMenu extends GameMode{
-   public static final AudioClip CONFIRM = AudioClip.get("Select4.ogg");
-   public static final AudioClip CURSOR = AudioClip.get("MoveCursor.ogg");
-   public static final AudioClip ERROR = AudioClip.get("Error2.ogg");
    public static final Color SELECT_COLOR = new Color(150, 150, 250, 100);
    public static final int FRAME_LENGTH = 10;
    protected GameMode parent;
@@ -49,9 +46,9 @@ public class LiveMenu extends GameMode{
       if((trans & InputHelper.CONFIRM) != 0){
          if(selected != null){
             selected.confirm();
-            CONFIRM.forcePlay(true, false);
+            CONFIRM.forcePlay(true, true);
          }else{
-            ERROR.tryPlay(true, false);
+            ERROR.tryPlay(true, true);
          }
       }
       if((trans & InputHelper.UP) != 0){
@@ -79,14 +76,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }else{
                selected = sel.get(best);
-               CURSOR.forcePlay(true, false);
+               CURSOR.forcePlay(true, true);
             }
          }else{
             if(!selectDefault()){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }
          }
          //</editor-fold>
@@ -116,14 +113,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }else{
                selected = sel.get(best);
-               CURSOR.forcePlay(true, false);
+               CURSOR.forcePlay(true, true);
             }
          }else{
             if(!selectDefault()){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }
          }
          //</editor-fold>
@@ -153,14 +150,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }else{
                selected = sel.get(best);
-               CURSOR.forcePlay(true, false);
+               CURSOR.forcePlay(true, true);
             }
          }else{
             if(!selectDefault()){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }
          }
          //</editor-fold>
@@ -190,14 +187,14 @@ public class LiveMenu extends GameMode{
                }
             }
             if(best == -1){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }else{
                selected = sel.get(best);
-               CURSOR.forcePlay(true, false);
+               CURSOR.forcePlay(true, true);
             }
          }else{
             if(!selectDefault()){
-               ERROR.tryPlay(true, false);
+               ERROR.tryPlay(true, true);
             }
          }
          //</editor-fold>
@@ -229,9 +226,9 @@ public class LiveMenu extends GameMode{
       MenuElement tmp;
       if((tmp = blocks.get(block).get(num)) instanceof SelectableElement){
          selected = (SelectableElement)tmp;
-         CURSOR.forcePlay(true, false);
+         CURSOR.forcePlay(true, true);
       }else{
-         ERROR.tryPlay(true, false);
+         ERROR.tryPlay(true, true);
       }
    }
    

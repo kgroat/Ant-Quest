@@ -12,6 +12,9 @@ import java.awt.event.KeyEvent;
  * @author Kevin
  */
 public abstract class GameMode {
+   public static final AudioClip CONFIRM = AudioClip.get("Select4.ogg");
+   public static final AudioClip CURSOR = AudioClip.get("MoveCursor.ogg");
+   public static final AudioClip ERROR = AudioClip.get("Error2.ogg");
    protected String name;
    
    public abstract void press(KeyEvent e);
