@@ -144,14 +144,14 @@ public class AudioClip {
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
                   waveFile = WaveData.create(FileUtility.loadURL(LOC+names[i]));
                   AL10.alBufferData(buffer.get(i), waveFile.format, waveFile.data, waveFile.samplerate);
-                  millis[i] = waveFile.data.capacity()/waveFile.samplerate;
+                  millis[i] = waveFile.data.capacity()*250l/waveFile.samplerate;
                   System.out.println(millis[i]);
                   waveFile.dispose();
                }else if(names[i].toLowerCase().endsWith(".ogg")){
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
                   oggFile = new OggData(FileUtility.loadURL(LOC+names[i]));
                   AL10.alBufferData(buffer.get(i), oggFile.format, oggFile.data, oggFile.samplerate);
-                  millis[i] = oggFile.data.capacity()*250/oggFile.samplerate;
+                  millis[i] = oggFile.data.capacity()*250l/oggFile.samplerate;
                   System.out.println(millis[i]);
                }
             }
