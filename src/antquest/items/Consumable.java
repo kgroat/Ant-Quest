@@ -4,11 +4,18 @@
  */
 package antquest.items;
 
+import antquest.Entity;
+
 /**
  *
  * @author Kevin
  */
 public abstract class Consumable extends Item{
-   
-   public abstract void onUse();
+   protected boolean destroyme;
+           
+   public abstract void onUse(Entity user, Entity target);
+   public boolean isDestroyable()
+   {
+       return destroyme;
+   }
 }

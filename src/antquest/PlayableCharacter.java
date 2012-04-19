@@ -4,7 +4,7 @@ import java.util.*;
 import antquest.items.*;
 
 
-abstract public class Character extends Entity
+abstract public class PlayableCharacter extends Entity
 {
     protected Weapon weapon, offhand;
     protected UpperArmor uarm;

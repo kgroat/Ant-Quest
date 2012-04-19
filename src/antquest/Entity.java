@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Entity 
 {
-    protected int hp, ap, def, mdef, react, atk, mage, acc;
+    protected int hp, mhp, ap, def, mdef, react, atk, mage, acc;
     protected String character_name;
     protected ArrayList<String> skills;
     
@@ -17,6 +17,11 @@ public class Entity
     public int getHP()
     {
         return hp;
+    }
+    
+    public int getMaxHP()
+    {
+        return mhp;
     }
     
     public int getAP()
@@ -57,5 +62,12 @@ public class Entity
     public ArrayList<String> getSkills()
     {
         return skills;
+    }
+    
+    public void Heal(int hpheal)
+    {
+        hp += hpheal;
+        if(hp > mhp)
+            hp = mhp;
     }
 }
