@@ -10,12 +10,16 @@ import antquest.Entity;
  * @author Clem
  */
 public class Crumb extends Consumable {
+    
+    protected int healme;
+    
     public Crumb()
     {
         destroyme=true;
+        healme=200;
     }
    public void onUse(Entity user, Entity target)
    {
-       
+       target.Heal(healme);//upon actual rendering, we're dividing by 100
    }
 }
