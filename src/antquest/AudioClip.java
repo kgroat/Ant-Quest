@@ -81,12 +81,12 @@ public class AudioClip {
             for (int i = 0; i < names.length; i++) {
                if(names[i].toLowerCase().endsWith(".wav")){
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
-                  waveFile = WaveData.create(FileUtility.loadURL("/resources/audio/"+names[i]));
+                  waveFile = WaveData.create(FileUtility.loadURL("/antquest/resources/audio/"+names[i]));
                   AL10.alBufferData(buffer.get(i), waveFile.format, waveFile.data, waveFile.samplerate);
                   waveFile.dispose();
                }else if(names[i].toLowerCase().endsWith(".ogg")){
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
-                  oggFile = new OggData(FileUtility.loadURL("/resources/audio/"+names[i]));
+                  oggFile = new OggData(FileUtility.loadURL("/antquest/resources/audio/"+names[i]));
                   AL10.alBufferData(buffer.get(i), oggFile.format, oggFile.data, oggFile.samplerate);
                }
             }
