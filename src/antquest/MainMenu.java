@@ -15,6 +15,8 @@ import java.awt.image.BufferedImage;
  * @author Kevin
  */
 public class MainMenu extends LiveMenu{
+   
+   public static final AudioClip THEME = AudioClip.get("Fun.ogg");
 
    public MainMenu(){
       super(null, null);
@@ -66,6 +68,7 @@ public class MainMenu extends LiveMenu{
       };
       block.add(element);
       selectDefault();
+      THEME.forcePlay(true, true);
    }
    
    @Override

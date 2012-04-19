@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
+import java.util.Scanner;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -21,6 +22,8 @@ import org.lwjgl.util.WaveData;
  * @author kevingroat
  */
 public class AudioClip {
+   
+   public static final String LOC = "/antquest/resources/audio/";
 
    public static final double DISTANCER = 100;
    
@@ -28,10 +31,53 @@ public class AudioClip {
 
       sfx, music
    };
-   private static final String[] names = {"Error1.ogg", "Error2.ogg", "MoveCursor.ogg", "Select1.ogg", "Select2.ogg", "Select3.ogg", "Select4.ogg"};
-   private static final boolean[] loop = {false, false, false, false, false, false, false};
-   private static final ClipType[] types = {ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx};
-   private static final float[] gains = {0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f};
+   private static final String[] names;// = {"Error1.ogg", "Error2.ogg", "MoveCursor.ogg", "Select1.ogg", "Select2.ogg", "Select3.ogg", "Select4.ogg"};
+   private static final boolean[] loop;// = {false, false, false, false, false, false, false};
+   private static final ClipType[] types;// = {ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx, ClipType.sfx};
+   private static final float[] gains;// = {0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f};
+   static{
+      int count = 0;
+      Scanner in=null;
+      try{
+         in = FileUtility.loadScanner(LOC+"AudioList.txt");
+         count = in.nextInt();
+         in.nextLine();
+      }catch(Exception e){
+         e.printStackTrace();
+      }
+      names = new String[count];
+      loop = new boolean[count];
+      types = new ClipType[count];
+      gains = new float[count];
+      if(in!=null){
+         try{
+            count = 0;
+            while(in.hasNext()){
+               String next = in.nextLine().trim();
+               int place = next.indexOf(";");
+               names[count] = next.substring(0, place);
+               next = next.substring(place+1).trim();
+               place = next.indexOf(";");
+               String test = next.substring(0, place).toUpperCase();
+               next = next.substring(place+1).trim();
+               if(test.contains("SFX")){
+                  types[count]=ClipType.sfx;
+               }else{
+                  types[count]=ClipType.music;
+               }
+               place = next.indexOf(";");
+               test = next.substring(0, place).toUpperCase();
+               loop[count]=test.contains("LOOP");
+               next = next.substring(place+1).trim();
+               next = next.replace(";", "");
+               gains[count]=Float.parseFloat(next);
+               count++;
+            }
+         }catch(Exception e){
+            e.printStackTrace();
+         }
+      }
+   }
    private static HashMap<String, AudioClip> map = new HashMap<String, AudioClip>();
    /** Maximum data buffers we will need. */
    public static final int NUM_BUFFERS = names.length;
@@ -81,12 +127,12 @@ public class AudioClip {
             for (int i = 0; i < names.length; i++) {
                if(names[i].toLowerCase().endsWith(".wav")){
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
-                  waveFile = WaveData.create(FileUtility.loadURL("/antquest/resources/audio/"+names[i]));
+                  waveFile = WaveData.create(FileUtility.loadURL(LOC+names[i]));
                   AL10.alBufferData(buffer.get(i), waveFile.format, waveFile.data, waveFile.samplerate);
                   waveFile.dispose();
                }else if(names[i].toLowerCase().endsWith(".ogg")){
                   System.out.println("Loading audio clip (" + String.format("%0" + D + "d/%0" + D + "d", i + 1, names.length) + "): " + names[i]);
-                  oggFile = new OggData(FileUtility.loadURL("/antquest/resources/audio/"+names[i]));
+                  oggFile = new OggData(FileUtility.loadURL(LOC+names[i]));
                   AL10.alBufferData(buffer.get(i), oggFile.format, oggFile.data, oggFile.samplerate);
                }
             }
