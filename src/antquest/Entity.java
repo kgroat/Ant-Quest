@@ -58,4 +58,9 @@ public class Entity
     {
         return skills;
     }
+    
+    public void Heal(int hpheal)
+    {
+        hp += hpheal;
+    }
 }
