@@ -53,6 +53,8 @@ public class FullScreenView extends JFrame {
     * @param args - unused - -
     */
    public static void main(String[] args) throws IOException {
+      Properties pr = System.getProperties();
+      System.out.println("Path separator: \""+pr.getProperty("path.separator")+"\"");
       if (args != null && args.length > 0 && args[0].toLowerCase().endsWith("proper")) {
          if (instance == null) {
             instance = new FullScreenView(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice());
