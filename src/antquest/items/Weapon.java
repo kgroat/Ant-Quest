@@ -1,17 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package antquest.items;
+import java.util.*;
 
-/**
- *
- * @author Kevin
- */
+
 public abstract class Weapon extends Hand{
    
    protected int maxAttack, minAttack;
    protected int [] hitpattern;
+   protected Hashtable<String,Integer> onhiteff;
    /*  see DamagingEffect for explanation
     *  
     * 
