@@ -17,6 +17,7 @@ public class BattleMode extends GameMode{
    protected int cx, cy;
    protected ArrayList<BattleActor> actors;
    protected BattleActor current;
+   protected ArrayList<Hex> battlemap;
 
    @Override
    public void press(KeyEvent e) {

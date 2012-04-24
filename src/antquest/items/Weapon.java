@@ -11,6 +11,12 @@ package antquest.items;
 public abstract class Weapon extends Hand{
    
    protected int maxAttack, minAttack;
+   protected int [] hitpattern;
+   /*  see DamagingEffect for explanation
+    *  
+    * 
+    * 
+    */
    
    
    /**
