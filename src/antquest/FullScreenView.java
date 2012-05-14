@@ -129,11 +129,7 @@ public class FullScreenView extends JFrame {
       addWindowListener(new WindowAdapter(){
          @Override
          public void windowClosing(WindowEvent e) {
-            GameMode gm;
-            if((gm = AQEngine.getCurrentMode()) instanceof QuittingMode)
-               closeProgram();
-            else
-               AQEngine.setMode(new QuittingMode(gm));
+            escape();
          }
       });
 
@@ -154,7 +150,7 @@ public class FullScreenView extends JFrame {
     */
    public void press(KeyEvent e) {
       if (e.getKeyCode() == KeyEvent.VK_ESCAPE && e.isShiftDown()) {
-         closeProgram();
+         escape();
       } else {
          AQEngine.pressKey(e);
       }
@@ -259,5 +255,13 @@ public class FullScreenView extends JFrame {
    public void drawImage(BufferedImage in) {
       Graphics g = this.getGraphics();
       g.drawImage(in, insetLeft, insetTop, screenWidth, screenHeight, this);
+   }
+   
+   private void escape(){
+      GameMode gm;
+      if((gm = AQEngine.getCurrentMode()) instanceof QuittingMode)
+         closeProgram();
+      else
+         AQEngine.setMode(new QuittingMode(gm));
    }
 }

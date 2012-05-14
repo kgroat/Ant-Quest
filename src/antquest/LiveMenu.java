@@ -26,6 +26,7 @@ public class LiveMenu extends GameMode{
    protected int frame;
    protected boolean leaving;
    protected BufferedImage backdrop;
+   protected GameMode whereTo;
 
    public LiveMenu(GameMode p, BufferedImage bd){
       parent = p;
@@ -42,165 +43,167 @@ public class LiveMenu extends GameMode{
    
    @Override
    public void press(KeyEvent e) {
-      int trans = InputHelper.transform(e);
-      if((trans & InputHelper.CONFIRM) != 0){
-         if(selected != null){
-            selected.confirm();
-            CONFIRM.forcePlay(true, true);
-         }else{
-            ERROR.tryPlay(true, true);
-         }
-      }
-      if((trans & InputHelper.UP) != 0){
-         //<editor-fold defaultstate="collapsed" desc="Move cursor north">
-         if(selected != null){
-            ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
-            for(int i=0; i<blocks.size(); i++){
-               sel.addAll(blocks.get(i).getSelectable());
+      if(frame == FRAME_LENGTH){
+         int trans = InputHelper.transform(e);
+         if((trans & InputHelper.CONFIRM) != 0){
+            if(selected != null){
+               selected.confirm();
+               CONFIRM.forcePlay(true, true);
+            }else{
+               ERROR.tryPlay(true, true);
             }
-            int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
-            SelectableElement curr;
-            for(int i=0; i<sel.size(); i++){
-               curr = sel.get(i);
-               dirDist = selected.getY() - curr.getY();
-               currDist = Math.abs(selected.getX() - curr.getX());
-               if(curr != selected){
-                  //Make sure in the north quadrant
-                  if(dirDist >= currDist){
-                     currDist += dirDist;
-                     if(currDist < bestDist){
-                        best = i;
-                        bestDist = currDist;
+         }
+         if((trans & InputHelper.UP) != 0){
+            //<editor-fold defaultstate="collapsed" desc="Move cursor north">
+            if(selected != null){
+               ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
+               for(int i=0; i<blocks.size(); i++){
+                  sel.addAll(blocks.get(i).getSelectable());
+               }
+               int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
+               SelectableElement curr;
+               for(int i=0; i<sel.size(); i++){
+                  curr = sel.get(i);
+                  dirDist = selected.getY() - curr.getY();
+                  currDist = Math.abs(selected.getX() - curr.getX());
+                  if(curr != selected){
+                     //Make sure in the north quadrant
+                     if(dirDist >= currDist){
+                        currDist += dirDist;
+                        if(currDist < bestDist){
+                           best = i;
+                           bestDist = currDist;
+                        }
                      }
                   }
                }
-            }
-            if(best == -1){
-               ERROR.tryPlay(true, true);
+               if(best == -1){
+                  ERROR.tryPlay(true, true);
+               }else{
+                  selected = sel.get(best);
+                  CURSOR.forcePlay(true, true);
+               }
             }else{
-               selected = sel.get(best);
-               CURSOR.forcePlay(true, true);
+               if(!selectDefault()){
+                  ERROR.tryPlay(true, true);
+               }
             }
-         }else{
-            if(!selectDefault()){
-               ERROR.tryPlay(true, true);
-            }
+            //</editor-fold>
          }
-         //</editor-fold>
-      }
-      if((trans & InputHelper.DOWN) != 0){
-         //<editor-fold defaultstate="collapsed" desc="Move cursor south">
-         if(selected != null){
-            ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
-            for(int i=0; i<blocks.size(); i++){
-               sel.addAll(blocks.get(i).getSelectable());
-            }
-            int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
-            SelectableElement curr;
-            for(int i=0; i<sel.size(); i++){
-               curr = sel.get(i);
-               dirDist = curr.getY() - selected.getY();
-               currDist = Math.abs(selected.getX() - curr.getX());
-               if(curr != selected){
-                  //Make sure in the south quadrant
-                  if(dirDist >= currDist){
-                     currDist += dirDist;
-                     if(currDist < bestDist){
-                        best = i;
-                        bestDist = currDist;
+         if((trans & InputHelper.DOWN) != 0){
+            //<editor-fold defaultstate="collapsed" desc="Move cursor south">
+            if(selected != null){
+               ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
+               for(int i=0; i<blocks.size(); i++){
+                  sel.addAll(blocks.get(i).getSelectable());
+               }
+               int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
+               SelectableElement curr;
+               for(int i=0; i<sel.size(); i++){
+                  curr = sel.get(i);
+                  dirDist = curr.getY() - selected.getY();
+                  currDist = Math.abs(selected.getX() - curr.getX());
+                  if(curr != selected){
+                     //Make sure in the south quadrant
+                     if(dirDist >= currDist){
+                        currDist += dirDist;
+                        if(currDist < bestDist){
+                           best = i;
+                           bestDist = currDist;
+                        }
                      }
                   }
                }
-            }
-            if(best == -1){
-               ERROR.tryPlay(true, true);
+               if(best == -1){
+                  ERROR.tryPlay(true, true);
+               }else{
+                  selected = sel.get(best);
+                  CURSOR.forcePlay(true, true);
+               }
             }else{
-               selected = sel.get(best);
-               CURSOR.forcePlay(true, true);
+               if(!selectDefault()){
+                  ERROR.tryPlay(true, true);
+               }
             }
-         }else{
-            if(!selectDefault()){
-               ERROR.tryPlay(true, true);
-            }
+            //</editor-fold>
          }
-         //</editor-fold>
-      }
-      if((trans & InputHelper.LEFT) != 0){
-         //<editor-fold defaultstate="collapsed" desc="Move cursor west">
-         if(selected != null){
-            ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
-            for(int i=0; i<blocks.size(); i++){
-               sel.addAll(blocks.get(i).getSelectable());
-            }
-            int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
-            SelectableElement curr;
-            for(int i=0; i<sel.size(); i++){
-               curr = sel.get(i);
-               dirDist = selected.getX() - curr.getX();
-               currDist = Math.abs(selected.getY() - curr.getY());
-               if(curr != selected){
-                  //Make sure in the west quadrant
-                  if(dirDist >= currDist){
-                     currDist += dirDist;
-                     if(currDist < bestDist){
-                        best = i;
-                        bestDist = currDist;
+         if((trans & InputHelper.LEFT) != 0){
+            //<editor-fold defaultstate="collapsed" desc="Move cursor west">
+            if(selected != null){
+               ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
+               for(int i=0; i<blocks.size(); i++){
+                  sel.addAll(blocks.get(i).getSelectable());
+               }
+               int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
+               SelectableElement curr;
+               for(int i=0; i<sel.size(); i++){
+                  curr = sel.get(i);
+                  dirDist = selected.getX() - curr.getX();
+                  currDist = Math.abs(selected.getY() - curr.getY());
+                  if(curr != selected){
+                     //Make sure in the west quadrant
+                     if(dirDist >= currDist){
+                        currDist += dirDist;
+                        if(currDist < bestDist){
+                           best = i;
+                           bestDist = currDist;
+                        }
                      }
                   }
                }
-            }
-            if(best == -1){
-               ERROR.tryPlay(true, true);
+               if(best == -1){
+                  ERROR.tryPlay(true, true);
+               }else{
+                  selected = sel.get(best);
+                  CURSOR.forcePlay(true, true);
+               }
             }else{
-               selected = sel.get(best);
-               CURSOR.forcePlay(true, true);
+               if(!selectDefault()){
+                  ERROR.tryPlay(true, true);
+               }
             }
-         }else{
-            if(!selectDefault()){
-               ERROR.tryPlay(true, true);
-            }
+            //</editor-fold>
          }
-         //</editor-fold>
-      }
-      if((trans & InputHelper.RIGHT) != 0){
-         //<editor-fold defaultstate="collapsed" desc="Move cursor east">
-         if(selected != null){
-            ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
-            for(int i=0; i<blocks.size(); i++){
-               sel.addAll(blocks.get(i).getSelectable());
-            }
-            int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
-            SelectableElement curr;
-            for(int i=0; i<sel.size(); i++){
-               curr = sel.get(i);
-               dirDist = curr.getX() - selected.getX();
-               currDist = Math.abs(selected.getY() - curr.getY());
-               if(curr != selected){
-                  //Make sure in the east quadrant
-                  if(dirDist >= currDist){
-                     currDist += dirDist;
-                     if(currDist < bestDist){
-                        best = i;
-                        bestDist = currDist;
+         if((trans & InputHelper.RIGHT) != 0){
+            //<editor-fold defaultstate="collapsed" desc="Move cursor east">
+            if(selected != null){
+               ArrayList<SelectableElement> sel = new ArrayList<SelectableElement>();
+               for(int i=0; i<blocks.size(); i++){
+                  sel.addAll(blocks.get(i).getSelectable());
+               }
+               int best = -1, bestDist = Integer.MAX_VALUE, dirDist, currDist;
+               SelectableElement curr;
+               for(int i=0; i<sel.size(); i++){
+                  curr = sel.get(i);
+                  dirDist = curr.getX() - selected.getX();
+                  currDist = Math.abs(selected.getY() - curr.getY());
+                  if(curr != selected){
+                     //Make sure in the east quadrant
+                     if(dirDist >= currDist){
+                        currDist += dirDist;
+                        if(currDist < bestDist){
+                           best = i;
+                           bestDist = currDist;
+                        }
                      }
                   }
                }
-            }
-            if(best == -1){
-               ERROR.tryPlay(true, true);
+               if(best == -1){
+                  ERROR.tryPlay(true, true);
+               }else{
+                  selected = sel.get(best);
+                  CURSOR.forcePlay(true, true);
+               }
             }else{
-               selected = sel.get(best);
-               CURSOR.forcePlay(true, true);
+               if(!selectDefault()){
+                  ERROR.tryPlay(true, true);
+               }
             }
-         }else{
-            if(!selectDefault()){
-               ERROR.tryPlay(true, true);
-            }
+            //</editor-fold>
          }
-         //</editor-fold>
-      }
-      if((trans & InputHelper.PAUSE) != 0){
-         AQEngine.setMode(escape());
+         if((trans & InputHelper.PAUSE) != 0){
+            leaving=true;
+         }
       }
    }
    
@@ -255,14 +258,18 @@ public class LiveMenu extends GameMode{
          if(frame > 0){
             frame --;
          }else{
-            AQEngine.setMode(parent);
+            System.out.println("yup");
+            if(whereTo == null)
+               AQEngine.setMode(escape());
+            else
+               AQEngine.setMode(whereTo);
+            leaving = false;
          }
       }
    }
    
    @Override
    public GameMode escape(){
-      leaving = true;
-      return this;
+      return parent;
    }
 }

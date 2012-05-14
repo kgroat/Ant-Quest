@@ -20,6 +20,7 @@ public class MainMenu extends LiveMenu{
 
    public MainMenu(){
       super(null, null);
+      final MainMenu t = this;
       if(backdrop == null){
          backdrop = FileUtility.loadImage("MainMenuBacksplash.png");
       }
@@ -55,6 +56,8 @@ public class MainMenu extends LiveMenu{
 
          @Override
          public void confirm() {
+            whereTo = new OptionsMenu(t, AQEngine.render());
+            leaving = true;
             System.out.println(text);
          }
       };
