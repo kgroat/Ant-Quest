@@ -40,6 +40,8 @@ public class MainMenu extends LiveMenu{
 
          @Override
          public void confirm() {
+            whereTo = new BattleMode();
+            leaving = true;
             System.out.println(text);
          }
       };
