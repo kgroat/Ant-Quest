@@ -32,7 +32,10 @@ public class Hex {
    }
 
    public void setOccupant(BattleActor e) {
+      if(occupant != null)
+         occupant.setLoc(null);
       occupant = e;
+      occupant.setLoc(this);
    }
 
    public BattleActor getOccupant() {

@@ -19,7 +19,7 @@ public class QuittingMode extends LiveMenu{
 
    public QuittingMode(GameMode p){
       super(p, null);
-      backdrop = AQEngine.render();
+      backdrop = AQEngine.getImage();
       Graphics2D g = backdrop.createGraphics();
       g.setColor(FEINT);
       g.fillRect(0, 0, AQEngine.getWidth(), AQEngine.getHeight());
@@ -32,7 +32,8 @@ public class QuittingMode extends LiveMenu{
 
          @Override
          public void confirm() {
-            AQEngine.setMode(escape());
+            whereTo = null;
+            leaving = true;
          }
       };
       block.add(element);

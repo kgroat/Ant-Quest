@@ -22,7 +22,7 @@ public class MainMenu extends LiveMenu{
       super(null, null);
       final MainMenu t = this;
       if(backdrop == null){
-         backdrop = FileUtility.loadImage("MainMenuBacksplash.png");
+         backdrop = FileUtility.loadImage("/antquest/resources/images/mmb.jpeg");
       }
       if(backdrop == null){
          backdrop = new BufferedImage(AQEngine.getWidth(), AQEngine.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -37,10 +37,14 @@ public class MainMenu extends LiveMenu{
       MenuElement element = new ProgressbarElement(cx+10, cy+10, 180, 32, 100, 27);
       block.add(element);
       element = new SelectableElement("I'm 12.  What is this?", TextElement.MENU_FONT, cx+100, cy+45, TextElement.CENTER) {
-
+         int count = 0;
          @Override
          public void confirm() {
-            whereTo = new BattleMode();
+            BattleMode temp;
+            int bright;// = (int)((Math.random()-.5)*30);
+            bright = (count % 13)*5 - 30;
+            count++;
+            whereTo = temp = BattleMode.makeAsymptoteMap(800, 25, 1.5, bright).smooth().setTerrainByHeight(40);
             leaving = true;
             System.out.println(text);
          }
@@ -58,7 +62,7 @@ public class MainMenu extends LiveMenu{
 
          @Override
          public void confirm() {
-            whereTo = new OptionsMenu(t, AQEngine.render());
+            whereTo = new OptionsMenu(t, backdrop);
             leaving = true;
             System.out.println(text);
          }
@@ -68,7 +72,8 @@ public class MainMenu extends LiveMenu{
 
          @Override
          public void confirm() {
-            AQEngine.setMode(new QuittingMode(parent));
+            whereTo = null;
+            leaving = true;
          }
       };
       block.add(element);
@@ -78,6 +83,7 @@ public class MainMenu extends LiveMenu{
    
    @Override
    public GameMode escape(){
+      this.frame = 0;
       return new QuittingMode(this);
    }
 }

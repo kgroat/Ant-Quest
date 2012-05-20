@@ -4,116 +4,180 @@
  */
 package antquest;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import javax.swing.Timer;
 
 /**
  *
  * @author Kevin
  */
 public final class AQEngine {
-   
-   private static int LOGIC_DELAY = 30;
-   private static int PAINT_DELAY = 30;
-   
-   private static Thread mainLoop, renderLoop;
+
+   private static int LOGIC_DELAY = 33;
+   private static int PAINT_DELAY = 33;
+   public static final Object MODE_KEY = new Object();
+   private static Timer mainLoop, renderLoop;
    private static GameMode currentMode;
-   private static BufferedImage buffer;
-   
+   private static BufferedImage buffer1, buffer2;
    private static boolean running;
-   
    private static int vWidth, vHeight;
-   
-   private AQEngine(){
+   private static boolean renderExtras1, nice;
+   private static long lastRenderFrame, lastPlayFrame;
+   private static int renderFrameTotal, playFrameTotal;
+   private static ArrayList<Integer> renderFrameLengths, playFrameLengths;
+
+   private AQEngine() {
       //DO NOTHING
    }
-   
+
    static void start() {
       running = true;
       resize();
+      nice = false;
+      renderFrameLengths = new ArrayList();
+      playFrameLengths = new ArrayList();
       currentMode = new MainMenu();
-      mainLoop = new Thread(){
-         public void run(){
-            while(running){
-               try{
-                  update();
-                  renderLoop.sleep(LOGIC_DELAY);
-               }catch(Exception e){
-                  e.printStackTrace();
-               }
-            }
+      mainLoop = new Timer(LOGIC_DELAY, new ActionListener(){
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            update();
          }
-      };
-      mainLoop.setDaemon(false);
-      renderLoop = new Thread(){
-         public void run(){
-            while(running){
-               try{
-                  FullScreenView.instance().drawImage(render());
-                  renderLoop.sleep(PAINT_DELAY);
-               }catch(Exception e){
-                  e.printStackTrace();
-               }
-            }
+      });
+      renderLoop = new Timer(PAINT_DELAY, new ActionListener(){
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            FullScreenView.instance().drawImage(render());
          }
-      };
-      renderLoop.setDaemon(true);
+      });
       mainLoop.start();
       renderLoop.start();
    }
-   
-   static void stop(){
+
+   static void stop() {
       running = false;
    }
-   
-   static void resize(){
-      vWidth = FullScreenView.instance().getScreenWidth()/2;
-      vHeight = FullScreenView.instance().getScreenHeight()/2;
-      buffer = new BufferedImage(vWidth, vHeight, BufferedImage.TYPE_INT_RGB);
+
+   static void resize() {
+      vWidth = FullScreenView.instance().getScreenWidth() / 2;
+      vHeight = FullScreenView.instance().getScreenHeight() / 2;
+      buffer1 = new BufferedImage(vWidth, vHeight, BufferedImage.TYPE_INT_RGB);
+      buffer2 = new BufferedImage(vWidth, vHeight, BufferedImage.TYPE_INT_RGB);
    }
-   
+
    static void pressKey(KeyEvent e) {
-      if(currentMode != null)
-         currentMode.press(e);
+      synchronized (MODE_KEY) {
+         if (currentMode != null) {
+            currentMode.press(e);
+         }
+         if (e.getKeyCode() == KeyEvent.VK_F1) {
+            renderExtras1 = true;
+         }else if (e.getKeyCode() == KeyEvent.VK_F2){
+            nice = !nice;
+         }
+      }
    }
 
    static void releaseKey(KeyEvent e) {
-      if(currentMode != null)
-         currentMode.release(e);
+      synchronized (MODE_KEY) {
+         if (currentMode != null) {
+            currentMode.release(e);
+         }
+         if (e.getKeyCode() == KeyEvent.VK_F1) {
+            renderExtras1 = false;
+         }
+      }
    }
 
-   static void setMode(GameMode g){
-      currentMode = g;
-   }
-   
-   public static BufferedImage render(){
-      if(currentMode != null){
-         Graphics2D g = buffer.createGraphics();
-         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-         currentMode.render(g);
+   static void setMode(GameMode g) {
+      synchronized (MODE_KEY) {
+         currentMode = g;
       }
-      return buffer;
    }
-   
-   public static void update(){
-      if(currentMode != null)
-         currentMode.update();
+
+   public static BufferedImage render() {
+      synchronized (MODE_KEY) {
+         if (currentMode != null) {
+            BufferedImage temp = buffer2;
+            Graphics2D g = buffer1.createGraphics();
+            if(nice){
+               g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            }else{
+               g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            }
+            g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+            currentMode.render(g);
+            buffer2 = buffer1;
+            buffer1 = temp;
+         }
+         renderExtras();
+         return buffer2;
+      }
    }
-   
-   public static int getWidth(){
+
+   public static BufferedImage getImage() {
+      return buffer2;
+   }
+
+   public static void update() {
+      synchronized (MODE_KEY) {
+         if (currentMode != null) {
+            long currentPlayFrame = System.currentTimeMillis();
+            int currentPlayLength = (int) (currentPlayFrame - lastPlayFrame);
+            playFrameTotal += currentPlayLength;
+            playFrameLengths.add(currentPlayLength);
+            if (playFrameLengths.size() > 100) {
+               playFrameTotal -= playFrameLengths.remove(0);
+            }
+            lastPlayFrame = currentPlayFrame;
+            currentMode.update();
+         }
+      }
+   }
+
+   public static int getWidth() {
       return vWidth;
    }
-   
-   public static int getHeight(){
+
+   public static int getHeight() {
       return vHeight;
    }
-   
-   public static GameMode getCurrentMode(){
-      return currentMode;
+
+   public static GameMode getCurrentMode() {
+      synchronized (MODE_KEY) {
+         return currentMode;
+      }
    }
-   
+
+   public static void renderExtras() {
+      if (renderExtras1) {
+         long currentRenderFrame = System.currentTimeMillis();
+         int currentRenderLength = (int) (currentRenderFrame - lastRenderFrame);
+         renderFrameTotal += currentRenderLength;
+         renderFrameLengths.add(currentRenderLength);
+         if (renderFrameLengths.size() > 10) {
+            renderFrameTotal -= renderFrameLengths.remove(0);
+         }
+
+         lastRenderFrame = currentRenderFrame;
+         Graphics2D bufferGraphics = buffer2.createGraphics();
+//         bufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+//         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+         bufferGraphics.setColor(Color.WHITE);
+         bufferGraphics.fillRect(0, 0, vWidth, vHeight / 33);
+         bufferGraphics.setColor(Color.BLACK);
+         bufferGraphics.setFont(new Font("", Font.PLAIN, vHeight / 40));
+         Runtime r = Runtime.getRuntime();
+         r.runFinalization();
+         bufferGraphics.drawString(String.format("Current Memory Usage: %010d     Current Available Memory: %010d     Max Memory: %010d     Visual: %04.2fFPS     Computational: %04.2fFPS", r.totalMemory() - r.freeMemory(), r.totalMemory(), r.maxMemory(), renderFrameLengths.size() * 1000f / renderFrameTotal, playFrameLengths.size() * 1000f / playFrameTotal), 3, vHeight / 40);
+      }
+   }
 }
