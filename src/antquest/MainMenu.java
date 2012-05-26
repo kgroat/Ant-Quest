@@ -41,8 +41,9 @@ public class MainMenu extends LiveMenu{
          @Override
          public void confirm() {
             BattleMode temp;
-            int bright;// = (int)((Math.random()-.5)*30);
-            bright = (count % 13)*5 - 30;
+            double bright;
+            bright = (Math.random()-.5)*60;
+            //bright = (count % 13)*5 - 30;
             count++;
             whereTo = temp = BattleMode.makeAsymptoteMap(800, 25, 1.5, bright).smooth().setTerrainByHeight(40);
             leaving = true;

@@ -4,13 +4,12 @@
  */
 package antquest;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Line2D;
-import java.awt.image.BufferedImage;
+import java.awt.geom.Arc2D;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  *
@@ -19,36 +18,45 @@ import java.util.ArrayList;
 public class BattleMode extends LiveMenu {
 
    //Even y-value means it is shifted to the right
-   public static final int DEFAULT_WIDTH = 4;
-   public static final int DEFAULT_HEIGHT = 4;
+   public static final int DEFAULT_WIDTH = 30;
+   public static final int DEFAULT_HEIGHT = 30;
    public static final double PERIOD = 50;
    public static final int MENU_WIDTH = 100;
    public static final int MENU_HEIGHT = 80;
-   public static final int HEX_SIZE = 32;
+   public static final int HEX_SIZE = 20;
    public static final int MODE_RENDER = 0;
    public static final int MODE_CURSOR = 1;
    public static final int MODE_PLAYER = 2;
    public static final int MODE_COMPUTER = 3;
-   public final Color BG_COLOR;
+   public static final int MODE_AOE = 4;
+   protected Color bgColor;
    protected final int mapWidth, mapHeight;
    protected int cx, cy;
    protected ArrayList<BattleActor> actors;
    protected BattleActor current;
    protected Hex[][] battlemap;
-   protected double frame;
+   protected double cursorFrame;
    protected int currentMode;
-   protected TextElement debug1;
-   protected int brightness;
+   protected double brightness;
    protected Color[] cols;
    protected boolean moved, cursor;
+   protected double tb;
+   protected AreaTemplate selection;
+   
+   protected TextElement debug1, debug2, debug3;
+   protected int radius, type;
+   protected double ang, wid;
 
    public BattleMode() {
       this((int)(Math.random() - .5)*60);
    }
 
-   public BattleMode(int bright){
+   public BattleMode(double bright){
       super(AQEngine.getCurrentMode(), null);
       debug1 = new TextElement(10, AQEngine.getHeight() - 100);
+      debug2 = new TextElement(10, AQEngine.getHeight() - 80);
+      debug3 = new TextElement(10, AQEngine.getHeight() - 60);
+      radius = 1;
       brightness = bright;
       currentMode = MODE_CURSOR;
       battlemap = new Hex[DEFAULT_WIDTH][DEFAULT_HEIGHT];
@@ -57,7 +65,7 @@ public class BattleMode extends LiveMenu {
       System.out.println("Brightness: " + brightness);
       for (int i = 0; i < mapWidth; i++) {
          for (int j = 0; j < mapHeight; j++) {
-            int terr = (int) ((Math.random() - .5) * 31) + brightness;
+            int terr = (int) ((Math.random() - .5) * 31 + brightness);
             terr = terr < -5 ? Hex.TERRAIN_DARK : terr > 5 ? Hex.TERRAIN_BRIGHT : 0;
             battlemap[i][j] = new Hex(this, i, j, (int) (Math.random() * 10 - 5), terr);
             if (Math.random() < .2) {
@@ -67,32 +75,52 @@ public class BattleMode extends LiveMenu {
       }
       cx = mapWidth / 2;
       cy = mapHeight / 2;
-      frame = 0;
+      cursorFrame = 0;
       MenuBlock temp;
       blocks.add(temp = new MenuBlock(this, 5, AQEngine.getHeight() - 105, AQEngine.getWidth() - 10, 100));
       temp.add(debug1);
-      blocks.add(temp = new MenuBlock(this, 5, 5, 100, AQEngine.getHeight() - 115));
-      blocks.add(temp = new MenuBlock(this, AQEngine.getWidth() - 105, 5, 100, AQEngine.getHeight() - 115));
-      setDebugText();
+      temp.add(debug2);
+      blocks.add(new MenuBlock(this, 5, 5, 100, AQEngine.getHeight() - 115));
+      blocks.add(new MenuBlock(this, AQEngine.getWidth() - 105, 5, 100, AQEngine.getHeight() - 115));
       cols = new Color[64];
       for (int i = 0; i < 64; i++) {
          cols[i] = hexColor(i);
       }
+      selection = null;
       moved = true;
       cursor = true;
-      double pow = 1/5.;
-      double tb = Math.signum(brightness)*Math.pow(Math.abs(brightness), pow)*Math.pow(30, 1-pow);
+      double pow = .25;
+      tb = Math.signum(brightness)*Math.pow(Math.abs(brightness), pow)*Math.pow(30, 1-pow);
       System.out.println("HERE: "+tb);
       int r = (int)(90 + 2.5*tb);
       int g = (int)(90 + 2.5*tb);
       int b = (int)(128 + 3*tb);
-      BG_COLOR = new Color(r, g, b);
+      bgColor = new Color(r, g, b);
+      setDebugText();
    }
    
-   void setDebugText() {
+   final void setDebugText() {
       debug1.setText(cx + " / " + cy + " / " + battlemap[cx][cy].zpos);
+      debug2.setText("Brightness: " + brightness + " / " + tb);
+      debug2.setText("Type: " + type + " / Radius: " + radius + " / Direction: " + ang + " / Width: " + wid);
    }
 
+   final void setSelection(){
+      //Collection<Hex> coll = new Collection(superHex(cx, cy, radius));
+      switch(type){
+         case 0: selection = null; break;
+         case 1: selection = new HexArea(this, cx, cy, radius, false); break;
+         case 2: selection= new CircleArea(this, cx, cy, radius, false); break;
+         case 3: selection = new HexArcArea(this, cx, cy, radius, ang, wid, false); break;
+         case 4: selection = new CircleArcArea(this, cx, cy, radius, ang, wid, false); break;
+      }
+      if(type == 0){
+         currentMode = MODE_CURSOR;
+      }else{
+         currentMode = MODE_AOE;
+      }
+   }
+   
    @Override
    public void press(KeyEvent e) {
       int trans = InputHelper.transform(e);
@@ -107,13 +135,26 @@ public class BattleMode extends LiveMenu {
          System.out.println("CURSOR ON: ["+cx+"]["+cy+"]");
       }
       
+      final int TYPES = 5;
+      int delta = 24;
+      switch(e.getKeyCode()){
+         case KeyEvent.VK_NUMPAD8: type = (type+1)%TYPES; break;
+         case KeyEvent.VK_NUMPAD2: type = (type+TYPES-1)%TYPES; break;
+         case KeyEvent.VK_NUMPAD4: radius = Math.max(1, radius - 1); break;
+         case KeyEvent.VK_NUMPAD6: radius = Math.min(radius + 1, 7); break;
+         case KeyEvent.VK_NUMPAD7: ang = (ang + Math.PI*(2*delta-1)/delta)%(Math.PI*2); break;
+         case KeyEvent.VK_NUMPAD9: ang = (ang + Math.PI/delta)%(Math.PI*2); break;
+         case KeyEvent.VK_NUMPAD1: wid = (wid + Math.PI*(2*delta-1)/delta)%(Math.PI*2); break;
+         case KeyEvent.VK_NUMPAD3: wid = (wid + Math.PI/delta)%(Math.PI*2); break;
+      }
+      
       //<editor-fold defaultstate="collapsed" desc="MODE_RENDER">
       if (currentMode == MODE_RENDER) {
       }
       //</editor-fold>
 
       //<editor-fold defaultstate="collapsed" desc="MODE_CURSOR">
-      if (currentMode == MODE_CURSOR) {
+      if (currentMode == MODE_CURSOR || currentMode == MODE_AOE) {
          if ((trans & InputHelper.LEFT) != 0) {
             cx--;
             if (cx < 0) {
@@ -155,8 +196,8 @@ public class BattleMode extends LiveMenu {
             moved = true;
          }
          if ((trans & InputHelper.CONFIRM) != 0) {
-            BattleActor selected = actorAtCursor();
-            if (selected != null) {
+            BattleActor selectedActor = actorAtCursor();
+            if (selectedActor != null) {
                //Confirm actor
                CONFIRM.forcePlay(true, true);
             } else {
@@ -182,6 +223,7 @@ public class BattleMode extends LiveMenu {
       }
 
       setDebugText();
+      setSelection();
       //throw new UnsupportedOperationException("Not supported yet.");
    }
 
@@ -218,17 +260,21 @@ public class BattleMode extends LiveMenu {
 
    @Override
    public void render(Graphics2D g) {
-      g.setColor(BG_COLOR);
+      g.setColor(bgColor);
       g.fillRect(0, 0, AQEngine.getWidth(), AQEngine.getHeight());
+      Stroke dStroke = g.getStroke();
+      Stroke sStroke = new BasicStroke(3f);
       Hex h;
       int terr, rd, gr, bl, tx, ty;
-      Color c;
+      Color c, r;
       Shape s;
       BattleActor actor;
-      float cos = (float) (Math.cos(frame / PERIOD * Math.PI * 2) / 2 + .5);
+      float cos = (float) (Math.cos(cursorFrame / PERIOD * Math.PI * 2) / 2 + .5);
       float bty;
       int diffx = AQEngine.getWidth()/2 - HEX_SIZE*3/4;//(AQEngine.getWidth() - 2 * MENU_WIDTH - HEX_SIZE * 3 / 2 - 10) * cx) / mapWidth + 10 + MENU_WIDTH;
       int diffy = (AQEngine.getHeight()-MENU_HEIGHT-10)/2;//(AQEngine.getHeight() - MENU_HEIGHT - HEX_SIZE * 3 / 2 - 30) * cy) / mapHeight + 10;
+      c = new Color((int) (180 + 75 * cos), (int) (180 + 75 * cos), (int) (255 * cos));
+      r = new Color((int) (192 - 128 * cos), 0, 0);
       for (int y = 0; y < mapHeight; y++) {
          ty = (y - cy) * HEX_SIZE * 3 / 4 + diffy + battlemap[cx][cy].zpos;
          for (int x = 0; x < mapWidth; x++) {
@@ -265,24 +311,50 @@ public class BattleMode extends LiveMenu {
                drawHex(tx, ty, HEX_SIZE, terr, h.getZ(), AQEngine.getHeight() / 2, g);
             }
 
-            if (cx == x && cy == y) {
-               g.setColor(new Color((int) (180 + 75 * cos), (int) (180 + 75 * cos), (int) (255 * cos)));
+            if (cx == x && cy == y && currentMode == MODE_CURSOR) {
+               g.setColor(c);
                int ity = (int) (ty - h.getZ() - cos * HEX_SIZE/2f - .5f);
                g.drawLine(tx, ity + HEX_SIZE / 4, tx + HEX_SIZE / 2, ity);
                g.drawLine(tx + HEX_SIZE, ity + HEX_SIZE / 4, tx + HEX_SIZE / 2, ity);
+            }else if(currentMode == MODE_AOE && selection != null && selection.contains(battlemap[x][y])){
+               g.setStroke(sStroke);
+               g.setColor(r);
+               int ity = (int) (ty - h.getZ() - cos * HEX_SIZE/2f - .5f);
+               g.drawLine(tx, ity + HEX_SIZE / 4, tx + HEX_SIZE / 2, ity);
+               g.drawLine(tx + HEX_SIZE, ity + HEX_SIZE / 4, tx + HEX_SIZE / 2, ity);
+               g.setStroke(dStroke);
             }
             if ((actor = h.getOccupant()) != null) {
                actor.render(g, tx, ty - h.getZ() - HEX_SIZE / 3);
             }
          }
-         if (cy == y) {
+         if(currentMode == MODE_AOE){
+            g.setStroke(sStroke);
+            g.setColor(r);
+            for(int x=0; x<mapWidth; x++){
+               h = battlemap[x][y];
+               if(selection != null && selection.contains(h)){
+                  tx = (x - cx) * HEX_SIZE + diffx;
+                  if (y % 2 == 0) {
+                     tx += HEX_SIZE / 2;
+                  }
+                  int ity = (int)(ty - h.getZ() - cos * HEX_SIZE/2f - .5f);
+                  g.drawLine(tx, ity + HEX_SIZE * 3 / 4, tx + HEX_SIZE / 2, ity + HEX_SIZE);
+                  g.drawLine(tx + HEX_SIZE, ity + HEX_SIZE * 3 / 4, tx + HEX_SIZE / 2, ity + HEX_SIZE);
+                  g.drawLine(tx, ity + HEX_SIZE / 4, tx, ity + HEX_SIZE * 3 / 4);
+                  g.drawLine(tx + HEX_SIZE, ity + HEX_SIZE / 4, tx + HEX_SIZE, ity + HEX_SIZE * 3 / 4);
+               }
+            }
+            g.setStroke(dStroke);
+         }
+         if (cy == y && currentMode == MODE_CURSOR) {
             h = battlemap[cx][cy];
             tx = diffx;
             ty = diffy + battlemap[cx][cy].zpos;
             if (y % 2 == 0) {
                tx += HEX_SIZE / 2;
             }
-            g.setColor(new Color((int) (180 + 75 * cos), (int) (180 + 75 * cos), (int) (255 * cos)));
+            g.setColor(c);
             bty = ty - h.getZ() - cos * HEX_SIZE/2f - .5f;
             int ity = (int) bty;
             g.drawLine(tx, ity + HEX_SIZE * 3 / 4, tx + HEX_SIZE / 2, ity + HEX_SIZE);
@@ -292,7 +364,7 @@ public class BattleMode extends LiveMenu {
          }
       }
 
-      frame = (frame + 1) % PERIOD;
+      cursorFrame = (cursorFrame + 1) % PERIOD;
       super.render(g);
       //throw new UnsupportedOperationException("Not supported yet.");
    }
@@ -323,7 +395,7 @@ public class BattleMode extends LiveMenu {
       g.drawLine(px + size, py + size / 4, px + size / 2, py);
    }
 
-   public Color hexColor(int terr) {
+   private Color hexColor(int terr) {
       int rd, gr, bl;
       if ((terr & Hex.TERRAIN_WET) == 0) {
          //Not wet
@@ -368,12 +440,21 @@ public class BattleMode extends LiveMenu {
          gr = Math.max(0, gr - 30);
          bl = Math.max(0, bl - 30);
       }
-      rd = Math.max(0, Math.min(rd + brightness, 255));
-      gr = Math.max(0, Math.min(gr + brightness, 255));
-      bl = Math.max(0, Math.min(bl + brightness, 255));
+      rd = (int)Math.max(0, Math.min(rd + brightness, 255));
+      gr = (int)Math.max(0, Math.min(gr + brightness, 255));
+      bl = (int)Math.max(0, Math.min(bl + brightness, 255));
       return new Color(rd, gr, bl);
    }
 
+   public void testAdjacents(int tx, int ty) {
+      Hex[] adj = adjascents(tx, ty);
+      System.out.println("Test for: " + tx + " / " + ty);
+      for (int i = 0; i < adj.length; i++) {
+         System.out.println("  " + i + ": " + adj[i].xpos + " / " + adj[i].ypos);
+      }
+      System.out.println();
+   }
+   
    public Hex[] adjascents(int x, int y) {
       Hex[] parts = new Hex[6];
       int i = 0;
@@ -422,80 +503,33 @@ public class BattleMode extends LiveMenu {
       }
       return temp;
    }
-
-   public void testAdjacents(int tx, int ty) {
-      Hex[] adj = adjascents(tx, ty);
-      System.out.println("Test for: " + tx + " / " + ty);
-      for (int i = 0; i < adj.length; i++) {
-         System.out.println("  " + i + ": " + adj[i].xpos + " / " + adj[i].ypos);
-      }
-      System.out.println();
-   }
-
-   public Hex[] radius(int x, int y, int rad) {
-      class HexMapping {
-
-         Hex hex;
-         int dist;
-
-         HexMapping(Hex h, int d) {
-            hex = h;
-            dist = d;
-         }
-
-         @Override
-         public boolean equals(Object o) {
-            if (o instanceof HexMapping) {
-               return hex.equals(((HexMapping) (o)).hex);
-            } else if (o instanceof Hex) {
-               return hex.equals((Hex) o);
-            } else {
-               return false;
-            }
-         }
-      }
-      ArrayList<HexMapping> tmp1 = new ArrayList<HexMapping>();
-      tmp1.add(new HexMapping(battlemap[x][y], 0));
-      Hex[] tmp2;
-      int tx, ty, dist;
-      HexMapping h;
-
-      for (int i = 0; i < tmp1.size(); i++) {
-         h = tmp1.get(i);
-         tx = h.hex.xpos;
-         ty = h.hex.ypos;
-         dist = h.dist;
-         if (dist < rad) {
-            tmp2 = adjascents(tx, ty);
-            for (int j = 0; j < tmp2.length; j++) {
-               if (tmp1.contains(tmp2[j])) {
-                  h = tmp1.get(tmp1.indexOf(tmp2[j]));
-                  h.dist = Math.min(h.dist, dist + 1);
-               } else {
-                  tmp1.add(new HexMapping(tmp2[j], dist + 1));
-               }
-            }
-         }
-      }
-
-      tmp2 = new Hex[tmp1.size()];
-      for (int i = 0; i < tmp2.length; i++) {
-         tmp2[i] = tmp1.get(i).hex;
-      }
-      return tmp2;
-   }
-
+   
    public static double hexDist(int x1, int y1, int x2, int y2) {
       double dx = x1 - x2;
       double dy = y1 - y2;
       if (y1 % 2 == 0) {
-         dx -= .5;
-      }
-      if (y2 % 2 == 0) {
          dx += .5;
       }
-      dy = dy * 3 / 4;
+      if (y2 % 2 == 0) {
+         dx -= .5;
+      }
+      dy = dy * 7/8;
       return Math.sqrt(dx * dx + dy * dy);
+   }
+   
+   public static double hexAng(int x1, int y1, int x2, int y2) {
+      double dx = x1 - x2;
+      double dy = y1 - y2;
+      if (y1 % 2 == 0) {
+         dx += .5;
+      }
+      if (y2 % 2 == 0) {
+         dx -= .5;
+      }
+      dy = dy * 7 / 8;
+      double out = Math.atan2(dy, dx);
+      //System.out.println("ANGLE: ["+x1+"-"+x2+"]["+y1+"-"+y2+"]: "+dy+" / "+dx+" ~ "+out);
+      return out;
    }
 
    @Override
@@ -504,7 +538,7 @@ public class BattleMode extends LiveMenu {
       //throw new UnsupportedOperationException("Not supported yet.");
    }
 
-   public static BattleMode makeAsymptoteMap(int points, double zRange, double mult, int bright) {
+   public static BattleMode makeAsymptoteMap(int points, double zRange, double mult, double bright) {
       BattleMode temp = zeroBattleMap(bright);
       class HeightPoint {
 
@@ -534,6 +568,7 @@ public class BattleMode extends LiveMenu {
             }
          }
       }
+      temp.setDebugText();
       return temp;
    }
 
@@ -552,6 +587,7 @@ public class BattleMode extends LiveMenu {
             }
          }
       }
+      setDebugText();
       return this;
    }
 
@@ -567,6 +603,7 @@ public class BattleMode extends LiveMenu {
             in.battlemap[i][j].zpos /= adj.length + 1;
          }
       }
+      in.setDebugText();
       return in;
    }
 
@@ -574,13 +611,14 @@ public class BattleMode extends LiveMenu {
       return smooth(this);
    }
 
-   public static BattleMode zeroBattleMap(int bright) {
+   public static BattleMode zeroBattleMap(double bright) {
       BattleMode temp = new BattleMode(bright);
       for (int i = 0; i < temp.mapWidth; i++) {
          for (int j = 0; j < temp.mapHeight; j++) {
             temp.battlemap[i][j].zpos = 0;
          }
       }
+      temp.setDebugText();
       return temp;
    }
 }

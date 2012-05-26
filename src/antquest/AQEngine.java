@@ -109,11 +109,11 @@ public final class AQEngine {
             Graphics2D g = buffer1.createGraphics();
             if(nice){
                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             }else{
                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            }
-            g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+            }
             currentMode.render(g);
             buffer2 = buffer1;
             buffer1 = temp;
@@ -169,15 +169,21 @@ public final class AQEngine {
 
          lastRenderFrame = currentRenderFrame;
          Graphics2D bufferGraphics = buffer2.createGraphics();
-//         bufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+         Object txt, aa;
+         txt = bufferGraphics.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+         aa = bufferGraphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+         bufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 //         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
          bufferGraphics.setColor(Color.WHITE);
-         bufferGraphics.fillRect(0, 0, vWidth, vHeight / 33);
+         bufferGraphics.fillRect(0, 0, vWidth, vWidth / 45);
          bufferGraphics.setColor(Color.BLACK);
-         bufferGraphics.setFont(new Font("", Font.PLAIN, vHeight / 40));
+         bufferGraphics.setFont(new Font("", Font.PLAIN, vWidth / 60));
          Runtime r = Runtime.getRuntime();
          r.runFinalization();
-         bufferGraphics.drawString(String.format("Current Memory Usage: %010d     Current Available Memory: %010d     Max Memory: %010d     Visual: %04.2fFPS     Computational: %04.2fFPS", r.totalMemory() - r.freeMemory(), r.totalMemory(), r.maxMemory(), renderFrameLengths.size() * 1000f / renderFrameTotal, playFrameLengths.size() * 1000f / playFrameTotal), 3, vHeight / 40);
+         bufferGraphics.drawString(String.format("Curr Mem Use: %010d   Curr Avail Mem: %010d   Max Mem: %010d   Vis: %05.2fFPS   Comp: %05.2fFPS", r.totalMemory() - r.freeMemory(), r.totalMemory(), r.maxMemory(), renderFrameLengths.size() * 1000f / renderFrameTotal, playFrameLengths.size() * 1000f / playFrameTotal), 3, vWidth / 60);
+         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+         bufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, txt);
       }
    }
 }

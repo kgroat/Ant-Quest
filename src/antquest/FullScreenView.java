@@ -37,7 +37,7 @@ public class FullScreenView extends JFrame {
    private int insetLeft;
    private int insetTop;
    private boolean isFullScreen;
-   private static boolean tryFull = true;
+   private static boolean tryFull = false;
 
    /**
     * Getter method for the singleton instance of FullScreenView.

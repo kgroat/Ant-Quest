@@ -30,6 +30,15 @@ public class Hex {
       zpos = z;
       occupant = null;
    }
+   
+   public Hex(Hex h){
+      parent = h.parent;
+      occupant = h.occupant;
+      xpos = h.xpos;
+      ypos = h.ypos;
+      zpos = h.zpos;
+      terrain = h.terrain;
+   }
 
    public void setOccupant(BattleActor e) {
       if(occupant != null)
@@ -60,5 +69,15 @@ public class Hex {
 
    public int getTerrain() {
       return terrain;
+   }
+   
+   @Override
+   public boolean equals(Object o){
+      if(o instanceof Hex){
+         Hex h = (Hex)o;
+         return xpos == h.xpos && ypos == h.ypos;
+      }else{
+         return false;
+      }
    }
 }
