@@ -4,6 +4,7 @@
  */
 package antquest;
 
+import antquest.menus.MainMenu;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -13,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.Timer;
 
 /**
@@ -33,6 +35,7 @@ public final class AQEngine {
    private static long lastRenderFrame, lastPlayFrame;
    private static int renderFrameTotal, playFrameTotal;
    private static ArrayList<Integer> renderFrameLengths, playFrameLengths;
+   private static Random rand;
 
    private AQEngine() {
       //DO NOTHING
@@ -59,6 +62,7 @@ public final class AQEngine {
       });
       mainLoop.start();
       renderLoop.start();
+      rand = new Random();
    }
 
    static void stop() {
@@ -96,7 +100,7 @@ public final class AQEngine {
       }
    }
 
-   static void setMode(GameMode g) {
+   public static void setMode(GameMode g) {
       synchronized (MODE_KEY) {
          currentMode = g;
       }
@@ -185,5 +189,21 @@ public final class AQEngine {
          bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
          bufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, txt);
       }
+   }
+   
+   public static double randDouble(){
+      return rand.nextDouble();
+   }
+   
+   public static int randInt(){
+      return rand.nextInt();
+   }
+   
+   public static int randInt(int top){
+      return rand.nextInt(top);
+   }
+   
+   public static long randLong(){
+      return rand.nextLong();
    }
 }

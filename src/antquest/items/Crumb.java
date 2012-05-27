@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 package antquest.items;
-import antquest.Entity;
+import antquest.entities.Entity;
 
 /**
  *

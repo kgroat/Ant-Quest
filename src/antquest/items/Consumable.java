@@ -4,7 +4,7 @@
  */
 package antquest.items;
 
-import antquest.Entity;
+import antquest.entities.Entity;
 
 /**
  *

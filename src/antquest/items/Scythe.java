@@ -1,5 +1,5 @@
 package antquest.items;
-import antquest.PlayableCharacter;
+import antquest.entities.characters.PlayableCharacter;
 
 public class Scythe extends Weapon
 {
