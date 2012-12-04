@@ -44,7 +44,7 @@ public class TextElement extends MenuElement{
    protected LineMetrics metrics;
    protected Color color;
    protected FontRenderContext frc;
-   protected int width, height;
+   protected int width, height, just;
    
    public TextElement(){
       this("TextElement", DEFAULT_FONT, 0, 0, LEFT_JUSTIFIED);
@@ -71,14 +71,7 @@ public class TextElement extends MenuElement{
       x = tx;
       y = ty;
       createLineMetrics();
-      switch(loc){
-         case CENTER:
-            x = tx - width/2;
-            break;
-         case RIGHT_JUSTIFIED:
-            x = tx - width;
-            break;
-      }
+      just = loc;
       color = DEFAULT_COLOR;
    }
    
@@ -98,7 +91,7 @@ public class TextElement extends MenuElement{
       //g.draw(rend);
       g.setFont(font);
       g.setColor(color);
-      g.drawString(text, x, y+metrics.getAscent());
+      g.drawString(text, trfX(), y+metrics.getAscent());
    }
    
    public void setText(String s){
@@ -108,6 +101,15 @@ public class TextElement extends MenuElement{
    
    public void setFont(Font f){
       font = f;
+      createLineMetrics();
+   }
+   
+   public Color getColor(){
+      return color;
+   }
+   
+   public void setColor(Color c){
+      color = c;
    }
    
    protected void createLineMetrics(){
@@ -122,12 +124,29 @@ public class TextElement extends MenuElement{
    
    @Override
    public int getX(){
-      return x + width/2;
+      return trfX() + width/2;
    }
    
    @Override
    public int getY(){
       return y + height/2;
+   }
+   
+   public int trfX(){
+      int tx = x;
+      switch(just){
+         case CENTER:
+            tx = x - width/2;
+            break;
+         case RIGHT_JUSTIFIED:
+            tx = x - width;
+            break;
+      }
+      return tx;
+   }
+   
+   public int trfY(){
+      return y;
    }
    
    private class ReliefPaint implements Paint{

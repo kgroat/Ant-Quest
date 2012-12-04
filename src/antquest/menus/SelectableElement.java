@@ -16,21 +16,29 @@ import java.awt.geom.Rectangle2D;
  * @author Kevin
  */
 public abstract class SelectableElement extends TextElement{
-   public static final Color DEFAULT_DISABLED = new Color(100, 100, 100, 150);
    
    protected boolean enabled;
-   protected Color disabledColor;
    
    public SelectableElement(String s, Font f, int tx, int ty){
       super(s, f, tx, ty);
+      enabled = true;
    }
    
    public SelectableElement(String s, Font f, int tx, int ty, int loc){
       super(s, f, tx, ty, loc);
+      enabled = true;
    }
    
    public void setEnabled(boolean b){
       enabled = b;
+   }
+   
+   public boolean isDisabled(){
+      return !enabled;
+   }
+   
+   public boolean isEnabled(){
+      return enabled;
    }
    
    @Override
@@ -39,7 +47,7 @@ public abstract class SelectableElement extends TextElement{
    }
    
    public Rectangle getBounds(){
-      return new Rectangle(x, y, width, height);
+      return new Rectangle(trfX(), trfY(), width, height);
    }
    
    public abstract void confirm();

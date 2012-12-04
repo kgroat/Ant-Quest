@@ -421,7 +421,7 @@ public class BattleMode extends LiveMenu {
          if (cy == y && currentMode == MODE_CURSOR) {
             h = battlemap[cx][cy];
             tx = diffx;
-            ty = diffy + battlemap[cx][cy].zpos;
+            ty = diffy + h.zpos;
             if (y % 2 == 0) {
                tx += HEX_SIZE / 2;
             }

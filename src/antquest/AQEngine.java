@@ -25,7 +25,7 @@ public final class AQEngine {
 
    private static int LOGIC_DELAY = 33;
    private static int PAINT_DELAY = 33;
-   public static final Object MODE_KEY = new Object();
+   private static final Object MODE_KEY = new Object();
    private static Timer mainLoop, renderLoop;
    private static GameMode currentMode;
    private static BufferedImage buffer1, buffer2;

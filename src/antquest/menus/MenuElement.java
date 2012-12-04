@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
  * @author Kevin
  */
 public abstract class MenuElement {
+   protected final MenuElement self;
    protected int x, y;
    
    public MenuElement(){
@@ -21,6 +22,7 @@ public abstract class MenuElement {
    public MenuElement(int tx, int ty){
       x = tx;
       y = ty;
+      self = this;
    }
    
    public int getX(){

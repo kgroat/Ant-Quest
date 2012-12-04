@@ -24,6 +24,7 @@ public class QuittingMode extends LiveMenu{
 
    public QuittingMode(GameMode p){
       super(p, null);
+      lr = false;
       backdrop = AQEngine.getImage();
       Graphics2D g = backdrop.createGraphics();
       g.setColor(FEINT);

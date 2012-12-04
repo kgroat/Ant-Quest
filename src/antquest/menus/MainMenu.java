@@ -26,6 +26,7 @@ public class MainMenu extends LiveMenu{
 
    public MainMenu(){
       super(null, null);
+      lr = false;
       final MainMenu t = this;
       if(backdrop == null){
          backdrop = FileUtility.loadImage("/antquest/resources/images/mmb.jpeg");

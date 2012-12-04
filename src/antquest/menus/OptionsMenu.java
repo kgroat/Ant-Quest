@@ -18,6 +18,8 @@ public class OptionsMenu extends LiveMenu {
    
    public OptionsMenu(GameMode p, BufferedImage bi){
       super(p, bi);
+      final OptionsMenu t = this;
+      lr = false;
       System.out.println(parent);
       System.out.println(backdrop);
       System.out.println(p);
@@ -34,11 +36,13 @@ public class OptionsMenu extends LiveMenu {
       blocks.add(block);
       MenuElement element = new ProgressbarElement(cx+10, cy+10, cw-20, 32, 100, AQEngine.randDouble()*100);
       block.add(element);
-      element = new SelectableElement("FIRST OPTION", TextElement.MENU_FONT, cx+cw/2, cy+ch/5, TextElement.CENTER) {
+      element = new SelectableElement("FIRST OPTION (Key bindings)", TextElement.MENU_FONT, cx+cw/2, cy+ch/5, TextElement.CENTER) {
 
          @Override
          public void confirm() {
             System.out.println(text);
+            whereTo = new KeybindingMenu(t, backdrop);
+            leaving = true;
          }
       };
       block.add(element);
