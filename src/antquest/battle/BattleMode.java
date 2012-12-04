@@ -21,12 +21,12 @@ import java.util.ArrayList;
 public class BattleMode extends LiveMenu {
 
    //Even y-value means it is shifted to the right
-   public static final int DEFAULT_WIDTH = 30;
-   public static final int DEFAULT_HEIGHT = 30;
+   public static final int DEFAULT_WIDTH = 25;
+   public static final int DEFAULT_HEIGHT = 25;
    public static final double PERIOD = 50;
    public static final int MENU_WIDTH = 100;
    public static final int MENU_HEIGHT = 80;
-   public static final int HEX_SIZE = 20;
+   public static final int HEX_SIZE = 16;
    public static final int MODE_RENDER = 0;
    public static final int MODE_CURSOR = 1;
    public static final int MODE_PLAYER = 2;
@@ -42,12 +42,12 @@ public class BattleMode extends LiveMenu {
    protected int currentMode;
    protected double brightness;
    protected Color[] cols;
-   protected boolean moved, cursor;
+   protected boolean moved, cursor, useScatter;
    protected double tb;
    protected AreaTemplate selection;
    protected TextElement debug1, debug2, debug3;
    protected int radius, type;
-   protected double ang, wid;
+   protected double ang, wid, factor;
    protected int dx, dy;
 
    public BattleMode() {
@@ -106,7 +106,7 @@ public class BattleMode extends LiveMenu {
    final void setDebugText() {
       debug1.setText(cx + " / " + cy + " / " + battlemap[cx][cy].zpos);
       debug2.setText("Brightness: " + brightness + " / " + tb + " / Other: " + dx + " / " + dy);
-      debug3.setText("Type: " + type + " / Radius: " + radius + " / Direction: " + ang + " / Width: " + wid);
+      debug3.setText("Type: " + type + " / Radius: " + radius + " / Direction: " + ang + " / Width: " + wid + " / Factor: " + factor/100);
    }
 
    final void setSelection() {
@@ -135,9 +135,12 @@ public class BattleMode extends LiveMenu {
          currentMode = MODE_CURSOR;
       } else {
          currentMode = MODE_AOE;
+         if(useScatter){
+            selection = new ScatteringArea(selection, factor/100, (long)(Long.MAX_VALUE * Math.random()));
+         }
       }
    }
-
+   
    @Override
    public void press(KeyEvent e) {
       int trans = InputHelper.transform(e);
@@ -178,6 +181,17 @@ public class BattleMode extends LiveMenu {
             break;
          case KeyEvent.VK_NUMPAD3:
             wid = (wid + Math.PI / delta) % (Math.PI * 2);
+            break;
+         case KeyEvent.VK_NUMPAD5:
+            useScatter = !useScatter;
+            break;
+         case KeyEvent.VK_ASTERISK:
+            factor++;
+            factor %= 100;
+            break;
+         case KeyEvent.VK_SLASH:
+            factor += 99;
+            factor %= 100;
             break;
          case KeyEvent.VK_I:
             dy--;

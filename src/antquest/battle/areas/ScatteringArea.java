@@ -38,7 +38,7 @@ public class ScatteringArea extends AreaTemplate{
    public void update() {
       parent.update();
       listOut.clear();
-      final int numOut = parent.size()/2;
+      final int numOut = (int)(parent.size()*factor);
       Hex tmp;
       Random r = new Random(seed);
       for(int i=0; i<numOut; i++){
