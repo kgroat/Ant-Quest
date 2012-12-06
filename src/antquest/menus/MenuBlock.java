@@ -71,6 +71,22 @@ public class MenuBlock extends MenuElement{
       return elements.get(i);
    }
    
+   public boolean remove(MenuElement me){
+      boolean removed = false;
+      for(int i=0; i<elements.size(); i++){
+         if(elements.get(i).equals(me)){
+            elements.remove(i);
+            removed = true;
+            i--;
+         }
+      }
+      return removed;
+   }
+   
+   public void clear(){
+      elements.clear();
+   }
+   
    public ArrayList<SelectableElement> getSelectable(){
       ArrayList<SelectableElement> out = new ArrayList<SelectableElement>();
       MenuElement tmp;

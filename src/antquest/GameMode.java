@@ -15,7 +15,14 @@ public abstract class GameMode {
    public static final AudioClip CONFIRM = AudioClip.get("Select4.ogg");
    public static final AudioClip CURSOR = AudioClip.get("MoveCursor.ogg");
    public static final AudioClip ERROR = AudioClip.get("Error2.ogg");
+   public static final AudioClip CANCEL = AudioClip.get("Select2.ogg");
+   
+   protected final GameMode self;
    protected String name;
+   
+   public GameMode(){
+      self = this;
+   }
    
    public abstract void press(KeyEvent e);
    

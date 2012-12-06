@@ -73,10 +73,10 @@ public class LineArea extends AreaTemplate{
    @Override
    public void update() {
       listOut.clear();
-      line = new Line(battle.hexLoc(x1, y1), battle.hexLoc(x2, y2), rayType);
+      line = new Line(BattleMode.hexLoc(x1, y1), BattleMode.hexLoc(x2, y2), rayType);
       for(int i=0; i<battle.getMapWidth(); i++){
          for(int j=0; j<battle.getMapHeight(); j++){
-            if(line.dist(battle.hexLoc(i, j)) < width){
+            if(line.dist(BattleMode.hexLoc(i, j)) < width){
                listOut.add(battle.getBattlemap()[i][j]);
             }
          }

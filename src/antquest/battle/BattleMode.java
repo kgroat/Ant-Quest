@@ -9,6 +9,9 @@ import antquest.menus.MenuBlock;
 import antquest.menus.LiveMenu;
 import antquest.*;
 import antquest.battle.areas.*;
+import antquest.menus.*;
+import antquest.numerical.Gradient;
+import antquest.numerical.NumberRange;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
@@ -32,11 +35,15 @@ public class BattleMode extends LiveMenu {
    public static final int MODE_PLAYER = 2;
    public static final int MODE_COMPUTER = 3;
    public static final int MODE_AOE = 4;
+   protected Gradient cursorGrad, offensiveGrad, defensiveGrad, neutralGrad;
    protected Color bgColor;
    protected final int mapWidth, mapHeight;
-   protected int cx, cy;
+   protected int cx, cy, ocx, ocy;
    protected ArrayList<BattleActor> actors;
-   protected BattleActor current;
+   protected BattleEntity current;
+   protected NumberRange[] ranges;
+   protected String[] rangeNames;
+   protected int rangeSetter;
    protected Hex[][] battlemap;
    protected double cursorFrame;
    protected int currentMode;
@@ -44,11 +51,11 @@ public class BattleMode extends LiveMenu {
    protected Color[] cols;
    protected boolean moved, cursor, useScatter;
    protected double tb;
-   protected AreaTemplate selection;
+   protected BattleSkill skill;
    protected TextElement debug1, debug2, debug3;
-   protected int radius, type;
-   protected double ang, wid, factor;
-   protected int dx, dy;
+   protected ListBlock skillList;
+   protected MenuBlock debugBlock, otherBlock;
+   protected BattleAnimEffect animation;
 
    public BattleMode() {
       this(AQEngine.randInt(60) - 30);
@@ -59,7 +66,6 @@ public class BattleMode extends LiveMenu {
       debug1 = new TextElement(10, AQEngine.getHeight() - 100);
       debug2 = new TextElement(10, AQEngine.getHeight() - 80);
       debug3 = new TextElement(10, AQEngine.getHeight() - 60);
-      radius = 1;
       brightness = bright;
       currentMode = MODE_CURSOR;
       battlemap = new Hex[DEFAULT_WIDTH][DEFAULT_HEIGHT];
@@ -79,18 +85,20 @@ public class BattleMode extends LiveMenu {
       cx = mapWidth / 2;
       cy = mapHeight / 2;
       cursorFrame = 0;
-      MenuBlock temp;
-      blocks.add(temp = new MenuBlock(this, 5, AQEngine.getHeight() - 105, AQEngine.getWidth() - 10, 100));
-      temp.add(debug1);
-      temp.add(debug2);
-      temp.add(debug3);
-      blocks.add(new MenuBlock(this, 5, 5, 100, AQEngine.getHeight() - 115));
-      blocks.add(new MenuBlock(this, AQEngine.getWidth() - 105, 5, 100, AQEngine.getHeight() - 115));
+      blocks.add(debugBlock = new MenuBlock(this, 5, AQEngine.getHeight() - 105, AQEngine.getWidth() - 10, 100));
+      debugBlock.add(debug1);
+      debugBlock.add(debug2);
+      debugBlock.add(debug3);
+      blocks.add(skillList = new ListBlock(this, 5, 5, 100, AQEngine.getHeight() - 115, TextElement.DEFAULT_FONT));
+      blocks.add(otherBlock = new MenuBlock(this, AQEngine.getWidth() - 105, 5, 100, AQEngine.getHeight() - 115));
       cols = new Color[64];
       for (int i = 0; i < 64; i++) {
          cols[i] = hexColor(i);
       }
-      selection = null;
+      skill = null;
+      ranges = null;
+      rangeNames = null;
+      rangeSetter = 0;
       moved = true;
       cursor = true;
       double pow = .25;
@@ -100,44 +108,30 @@ public class BattleMode extends LiveMenu {
       int g = (int) (90 + 2.5 * tb);
       int b = (int) (128 + 3 * tb);
       bgColor = new Color(r, g, b);
+      
+      cursorGrad = new Gradient(180, 180, 0, 255, 255, 255);
+      offensiveGrad = new Gradient(192, 0, 0, 64, 0, 0);
+      defensiveGrad = new Gradient(100, 100, 255, 100, 255, 255);
+      neutralGrad = new Gradient(255, 192, 0, 0, 0, 255);
       setDebugText();
+      setSkillListText(entityAtCursor());
    }
 
    final void setDebugText() {
       debug1.setText(cx + " / " + cy + " / " + battlemap[cx][cy].zpos);
-      debug2.setText("Brightness: " + brightness + " / " + tb + " / Other: " + dx + " / " + dy);
-      debug3.setText("Type: " + type + " / Radius: " + radius + " / Direction: " + ang + " / Width: " + wid + " / Factor: " + factor/100);
-   }
-
-   final void setSelection() {
-      //Collection<Hex> coll = new Collection(superHex(cx, cy, radius));
-      switch (type) {
-         case 0:
-            selection = null;
-            break;
-         case 1:
-            selection = new HexArea(this, cx, cy, radius, false);
-            break;
-         case 2:
-            selection = new CircleArea(this, cx, cy, radius, false);
-            break;
-         case 3:
-            selection = new HexArcArea(this, cx, cy, radius, ang, wid, false);
-            break;
-         case 4:
-            selection = new CircleArcArea(this, cx, cy, radius, ang, wid, false);
-            break;
-         case 5:
-            selection = new LineArea(this, cx, cy, cx + dx, cy + dy, radius, 2);
-            break;
-      }
-      if (type == 0) {
-         currentMode = MODE_CURSOR;
-      } else {
-         currentMode = MODE_AOE;
-         if(useScatter){
-            selection = new ScatteringArea(selection, factor/100, (long)(Long.MAX_VALUE * Math.random()));
+      debug2.setText("Brightness: " + brightness + " / " + tb);
+      if(skill != null){
+         if(rangeSetter < 0){
+            debug3.setText("X of origin: " + cx + " / Y of origin: " + cy);
+         }else{
+            String text = rangeNames[rangeSetter] + ": " + ranges[rangeSetter].getCurrent();
+            if(rangeSetter + 1 < ranges.length){
+               text += " / " + rangeNames[rangeSetter + 1] + ": " + ranges[rangeSetter + 1].getCurrent();
+            }
+            debug3.setText(text);
          }
+      }else{
+         debug3.setText("");
       }
    }
    
@@ -157,123 +151,97 @@ public class BattleMode extends LiveMenu {
 
       final int TYPES = 6;
       int delta = 24;
-      switch (e.getKeyCode()) {
-         case KeyEvent.VK_NUMPAD8:
-            type = (type + 1) % TYPES;
-            break;
-         case KeyEvent.VK_NUMPAD2:
-            type = (type + TYPES - 1) % TYPES;
-            break;
-         case KeyEvent.VK_NUMPAD4:
-            radius = Math.max(1, radius - 1);
-            break;
-         case KeyEvent.VK_NUMPAD6:
-            radius = Math.min(radius + 1, 7);
-            break;
-         case KeyEvent.VK_NUMPAD7:
-            ang = (ang + Math.PI * (2 * delta - 1) / delta) % (Math.PI * 2);
-            break;
-         case KeyEvent.VK_NUMPAD9:
-            ang = (ang + Math.PI / delta) % (Math.PI * 2);
-            break;
-         case KeyEvent.VK_NUMPAD1:
-            wid = (wid + Math.PI * (2 * delta - 1) / delta) % (Math.PI * 2);
-            break;
-         case KeyEvent.VK_NUMPAD3:
-            wid = (wid + Math.PI / delta) % (Math.PI * 2);
-            break;
-         case KeyEvent.VK_NUMPAD5:
-            useScatter = !useScatter;
-            break;
-         case KeyEvent.VK_ASTERISK:
-            factor++;
-            factor %= 100;
-            break;
-         case KeyEvent.VK_SLASH:
-            factor += 99;
-            factor %= 100;
-            break;
-         case KeyEvent.VK_I:
-            dy--;
-            break;
-         case KeyEvent.VK_J:
-            dx--;
-            break;
-         case KeyEvent.VK_K:
-            dy++;
-            break;
-         case KeyEvent.VK_L:
-            dx++;
-            break;
-      }
-
-      //<editor-fold defaultstate="collapsed" desc="MODE_RENDER">
-      if (currentMode == MODE_RENDER) {
-      }
-      //</editor-fold>
 
       //<editor-fold defaultstate="collapsed" desc="MODE_CURSOR">
-      if (currentMode == MODE_CURSOR || currentMode == MODE_AOE) {
-         if ((trans & InputHelper.LEFT) != 0) {
-            cx--;
-            if (cx < 0) {
-               ERROR.tryPlay(true, true);
-               cx = 0;
-            } else {
-               CURSOR.forcePlay(true, true);
-            }
-            moved = true;
-         }
-         if ((trans & InputHelper.UP) != 0) {
-            cy--;
-            if (cy < 0) {
-               ERROR.tryPlay(true, true);
-               cy = 0;
-            } else {
-               CURSOR.forcePlay(true, true);
-            }
-            moved = true;
-         }
-         if ((trans & InputHelper.RIGHT) != 0) {
-            cx++;
-            if (cx >= mapWidth) {
-               ERROR.tryPlay(true, true);
-               cx = mapWidth - 1;
-            } else {
-               CURSOR.forcePlay(true, true);
-            }
-            moved = true;
-         }
-         if ((trans & InputHelper.DOWN) != 0) {
-            cy++;
-            if (cy >= mapHeight) {
-               ERROR.tryPlay(true, true);
-               cy = mapHeight - 1;
-            } else {
-               CURSOR.forcePlay(true, true);
-            }
-            moved = true;
-         }
+      if (currentMode == MODE_CURSOR) {
+         
+         Point p = buttonMovement(trans);
+         moveCursor(p);
+         
+         clearSkillList();
+         
+         BattleEntity selectedEntity = entityAtCursor();
          if ((trans & InputHelper.CONFIRM) != 0) {
-            BattleActor selectedActor = actorAtCursor();
-            if (selectedActor != null) {
-               //Confirm actor
+            if (selectedEntity != null) {
+               setSkillListButton(selectedEntity);
+               current = selectedEntity;
+               currentMode = MODE_PLAYER;
+               lr = false;
+               ud = true;
+               ocx = cx;
+               ocy = cy;
                CONFIRM.forcePlay(true, true);
             } else {
                ERROR.tryPlay(true, true);
             }
+         }else{
+            setSkillListText(selectedEntity);
+         }
+      }
+      //</editor-fold>
+      
+      //<editor-fold defaultstate="collapsed" desc="MODE_PLAYER">
+      else if (currentMode == MODE_PLAYER) {
+         if((trans & InputHelper.CANCEL) != 0){
+            clearSkillList();
+            setSkillListText(entityAtCursor());
+            selected = null;
+            currentMode = MODE_CURSOR;
+            CANCEL.forcePlay(true, true);
+         }else{
+            super.press(e);
          }
       }
       //</editor-fold>
 
-      //<editor-fold defaultstate="collapsed" desc="MODE_PLAYER">
-      if (currentMode == MODE_PLAYER) {
-         super.press(e);
+      //<editor-fold defaultstate="collapsed" desc="MODE AOE">
+      else if (currentMode == MODE_AOE){
+         Point p = buttonMovement(trans);
+         moveRanges(p, rangeSetter);
+         if((trans & InputHelper.CONFIRM) != 0){
+            if(rangeSetter + 2 < ranges.length){
+               rangeSetter += 2;
+            }else{
+               animation = skill.apply(current, (BattleMode)self, cx, cy, getAOEVals());
+               rangeSetter = 0;
+               skill = null;
+               ranges = null;
+               rangeNames = null;
+               currentMode = MODE_RENDER;
+               cx = ocx;
+               cy = ocy;
+               selected = null;
+            }
+            CONFIRM.forcePlay(true, true);
+         }
+         
+         if((trans & InputHelper.CANCEL) != 0){
+            if(rangeSetter < 0 || (rangeSetter-2 < 0 && !skill.canMoveOrigin())){
+               rangeSetter = 0;
+               skill = null;
+               ranges = null;
+               rangeNames = null;
+               currentMode = MODE_PLAYER;
+            }else{
+               rangeSetter -= 2;
+            }
+            CANCEL.forcePlay(true, true);
+         }
+      }
+      //</editor-fold>
+
+      //<editor-fold defaultstate="collapsed" desc="MODE_RENDER">
+      if (currentMode == MODE_RENDER) {
+         if(animation == null || animation.isDone()){
+            currentMode = MODE_CURSOR;
+         }else{
+            //Wait until animation completes
+         }
       }
       //</editor-fold>
 
       //<editor-fold defaultstate="collapsed" desc="MODE_COMPUTER">
-      if (currentMode == MODE_COMPUTER) {
+      else if (currentMode == MODE_COMPUTER) {
       }
       //</editor-fold>
 
@@ -282,11 +250,121 @@ public class BattleMode extends LiveMenu {
       }
 
       setDebugText();
-      setSelection();
       //throw new UnsupportedOperationException("Not supported yet.");
    }
+   
+   public void moveCursor(Point p){
+      if(p != null){
+         boolean mv = false;
+         if(!(cx + p.x >= mapWidth || cx + p.x < 0) && p.x != 0){
+            cx += p.x;
+            mv = true;
+         }
 
-   public BattleActor actorAtCursor() {
+         if(!(cy + p.y >= mapHeight || cy + p.y < 0) && p.y != 0){
+            cy += p.y;
+            mv = true;
+         }
+
+         if(mv){
+            moved = true;
+            CURSOR.forcePlay(true, true);
+         }else{
+            ERROR.tryPlay(true, true);
+         }
+      }
+   }
+   
+   public void moveRanges(Point p, int rangeSetter){
+      if(rangeSetter < 0){
+         moveCursor(p);
+      }else if(p != null){
+         boolean mv = false;
+         if(p.x > 0){
+            ranges[rangeSetter].up();
+            mv = true;
+         }else if(p.x < 0){
+            ranges[rangeSetter].down();
+            mv = true;
+         }
+         if(ranges.length > rangeSetter + 1){
+            if(p.y < 0){
+               ranges[rangeSetter + 1].up();
+               mv = true;
+            }else if(p.y > 0){
+               ranges[rangeSetter + 1].down();
+               mv = true;
+            }
+         }
+
+         if(mv){
+            moved = true;
+            CURSOR.forcePlay(true, true);
+         }else{
+            ERROR.tryPlay(true, true);
+         }
+      }
+   }
+   
+   public Point buttonMovement(int trans){
+      int cx = 0, cy = 0;
+      boolean moved = false;
+      if ((trans & InputHelper.LEFT) != 0) {
+         cx--;
+         moved = true;
+      }
+      if ((trans & InputHelper.UP) != 0) {
+         cy--;
+         moved = true;
+      }
+      if ((trans & InputHelper.RIGHT) != 0) {
+         cx++;
+         moved = true;
+      }
+      if ((trans & InputHelper.DOWN) != 0) {
+         cy++;
+         moved = true;
+      }
+      if(moved){
+         return new Point(cx, cy);
+      }else{
+         return null;
+      }
+   }
+   
+   public void clearSkillList(){
+      skillList.clear();
+   }
+   
+   public void setSkillListText(BattleEntity entity){
+      if(entity != null){
+         for(BattleSkill each: entity.getSkills()){
+            skillList.put(new TextElement(each.getName(), skillList.getFont()));
+         }
+      }
+   }
+   
+   public void setSkillListButton(BattleEntity entity){
+      if(entity != null){
+         for(BattleSkill tmp: entity.getSkills()){
+            final BattleSkill each = tmp;
+            skillList.put(new SelectableElement(each.getName(), skillList.getFont()) {
+
+               @Override
+               public void confirm() {
+                  skill = each;
+                  ranges = each.getAreaTemplateRanges();
+                  rangeNames = each.getRangeNames();
+                  rangeSetter = each.canMoveOrigin() ? -2 : 0;
+                  currentMode = MODE_AOE;
+               }
+            });
+         }
+         this.selectDefault();
+      }
+   }
+
+   public BattleEntity entityAtCursor() {
       return battlemap[cx][cy].getOccupant();
    }
 
@@ -331,6 +409,15 @@ public class BattleMode extends LiveMenu {
 
    @Override
    public void render(Graphics2D g) {
+      if(currentMode == MODE_RENDER){
+         if(animation != null && !animation.isDone()){
+            animation.preApply(g);
+         }else{
+            currentMode = MODE_CURSOR;
+            animation = null;
+         }
+      }
+      
       g.setColor(bgColor);
       g.fillRect(0, 0, AQEngine.getWidth(), AQEngine.getHeight());
       Stroke dStroke = g.getStroke();
@@ -339,13 +426,18 @@ public class BattleMode extends LiveMenu {
       int terr, rd, gr, bl, tx, ty;
       Color c, r;
       Shape s;
-      BattleActor actor;
+      BattleEntity actor;
+      AreaTemplate selection = getAOE();
       float cos = (float) (Math.cos(cursorFrame / PERIOD * Math.PI * 2) / 2 + .5);
       float bty;
       int diffx = AQEngine.getWidth() / 2 - HEX_SIZE * 3 / 4;//(AQEngine.getWidth() - 2 * MENU_WIDTH - HEX_SIZE * 3 / 2 - 10) * cx) / mapWidth + 10 + MENU_WIDTH;
       int diffy = (AQEngine.getHeight() - MENU_HEIGHT - 10) / 2;//(AQEngine.getHeight() - MENU_HEIGHT - HEX_SIZE * 3 / 2 - 30) * cy) / mapHeight + 10;
-      c = new Color((int) (180 + 75 * cos), (int) (180 + 75 * cos), (int) (255 * cos));
-      r = new Color((int) (192 - 128 * cos), 0, 0);
+      c = cursorGrad.get(cos);
+      if(skill != null){
+         r = skill.getGradient().get(cos);
+      }else{
+         r = offensiveGrad.get(cos);
+      }
       for (int y = 0; y < mapHeight; y++) {
          ty = (y - cy) * HEX_SIZE * 3 / 4 + diffy + battlemap[cx][cy].zpos;
          for (int x = 0; x < mapWidth; x++) {
@@ -371,7 +463,7 @@ public class BattleMode extends LiveMenu {
                   if (y < mapHeight - 2) {
                      min = Math.min(battlemap[x][y + 2].zpos - HEX_SIZE * 3 / 4, min);
                   } else {
-                     min = battlemap[x][y].zpos - AQEngine.getHeight() / 2;
+                     min = battlemap[x][y].zpos - AQEngine.getHeight();
                   }
                }
                min = battlemap[x][y].zpos - min + HEX_SIZE / 4;
@@ -379,7 +471,11 @@ public class BattleMode extends LiveMenu {
 
                drawHex(tx, ty, HEX_SIZE, terr, h.getZ(), min, g);
             } else {
-               drawHex(tx, ty, HEX_SIZE, terr, h.getZ(), AQEngine.getHeight() / 2, g);
+               drawHex(tx, ty, HEX_SIZE, terr, h.getZ(), AQEngine.getHeight(), g);
+            }
+            
+            if(animation != null){
+               animation.apply(g, tx, ty, h);
             }
 
             if (cx == x && cy == y && currentMode == MODE_CURSOR) {
@@ -436,6 +532,9 @@ public class BattleMode extends LiveMenu {
       }
 
       cursorFrame = (cursorFrame + 1) % PERIOD;
+      if(animation != null){
+         animation.postApply(g);
+      }
       super.render(g);
       //throw new UnsupportedOperationException("Not supported yet.");
    }
@@ -689,6 +788,28 @@ public class BattleMode extends LiveMenu {
 
    public BattleMode smooth() {
       return smooth(this);
+   }
+   
+   public AreaTemplate getAOE(){
+      if(skill != null){
+         double tmp[] = new double[ranges.length];
+         for(int i=0; i<tmp.length; i++){
+            tmp[i] = ranges[i].getCurrent();
+         }
+         return skill.getAreaTemplate(this, cx, cy, tmp);
+      }
+      return null;
+   }
+   
+   public double[] getAOEVals(){
+      if(skill != null){
+         double tmp[] = new double[ranges.length];
+         for(int i=0; i<tmp.length; i++){
+            tmp[i] = ranges[i].getCurrent();
+         }
+         return tmp;
+      }
+      return null;
    }
 
    public static BattleMode zeroBattleMap(double bright) {

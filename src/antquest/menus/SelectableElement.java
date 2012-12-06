@@ -19,6 +19,11 @@ public abstract class SelectableElement extends TextElement{
    
    protected boolean enabled;
    
+   public SelectableElement(String s, Font f){
+      super(s, f);
+      enabled = true;
+   }
+   
    public SelectableElement(String s, Font f, int tx, int ty){
       super(s, f, tx, ty);
       enabled = true;
@@ -51,4 +56,8 @@ public abstract class SelectableElement extends TextElement{
    }
    
    public abstract void confirm();
+   
+   public TextElement asTextElement(){
+      return new TextElement(text, font, x, y, just);
+   }
 }

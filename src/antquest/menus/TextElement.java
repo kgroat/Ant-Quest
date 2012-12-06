@@ -122,13 +122,19 @@ public class TextElement extends MenuElement{
       height = (int)r.getHeight();
    }
    
-   @Override
-   public int getX(){
+   public int getJustification(){
+      return just;
+   }
+   
+   public void setJustification(int loc){
+      just = loc;
+   }
+   
+   public int getCenterX(){
       return trfX() + width/2;
    }
    
-   @Override
-   public int getY(){
+   public int getCenterY(){
       return y + height/2;
    }
    
