@@ -43,7 +43,7 @@ public class MainMenu extends LiveMenu{
       blocks.add(block);
       MenuElement element = new ProgressbarElement(cx+10, cy+10, 180, 32, 100, 27);
       block.add(element);
-      element = new SelectableElement("I'm 12.  What is this?", TextElement.MENU_FONT, cx+100, cy+45, TextElement.CENTER) {
+      element = new SelectableElement("New Game", TextElement.MENU_FONT, cx+100, cy+45, TextElement.CENTER) {
          int count = 0;
          @Override
          public void confirm() {
@@ -58,7 +58,7 @@ public class MainMenu extends LiveMenu{
          }
       };
       block.add(element);
-      element = new SelectableElement("I am ultra-pro!", TextElement.MENU_FONT, cx+100, cy+70, TextElement.CENTER) {
+      element = new SelectableElement("Load Game", TextElement.MENU_FONT, cx+100, cy+70, TextElement.CENTER) {
 
          @Override
          public void confirm() {
@@ -66,7 +66,7 @@ public class MainMenu extends LiveMenu{
          }
       };
       block.add(element);
-      element = new SelectableElement("Y  U  NO...?", TextElement.MENU_FONT, cx+100, cy+95, TextElement.CENTER) {
+      element = new SelectableElement("Settings", TextElement.MENU_FONT, cx+100, cy+95, TextElement.CENTER) {
 
          @Override
          public void confirm() {
