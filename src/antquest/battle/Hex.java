@@ -20,7 +20,7 @@ public class Hex {
    public static final int TERRAIN_LOW = 32;
    
    protected BattleMode parent;
-   protected BattleActor occupant;
+   protected BattleEntity occupant;
    protected int xpos, ypos, zpos;
    protected int terrain; //might be a separate class later?
 
@@ -49,7 +49,7 @@ public class Hex {
       occupant.setLoc(this);
    }
 
-   public BattleActor getOccupant() {
+   public BattleEntity getOccupant() {
       return occupant;
    }
 

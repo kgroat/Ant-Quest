@@ -26,13 +26,13 @@ public class LiveMenu extends GameMode {
    public static final Color DEFAULT_DISABLED_COLOR = new Color(100, 100, 100, 150);
    
    public static final int FRAME_LENGTH = 10;
-   protected Color selectColor, disabledColor;
+   protected Color selectColor, disabledColor, feint;
    protected GameMode parent;
    protected ArrayList<MenuBlock> blocks;
    protected SelectableElement selected;
    protected int frame;
    protected boolean leaving, parentRunning, parentRendering, ud, lr;
-   protected BufferedImage backdrop;
+   protected BufferedImage backdrop, parentBuffer;
    protected GameMode whereTo;
 
    public LiveMenu(GameMode p, BufferedImage bd) {
@@ -82,8 +82,8 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = selected.getY() - curr.getY();
-                        currDist = Math.abs(selected.getX() - curr.getX());
+                        dirDist = selected.getCenterY() - curr.getCenterY();
+                        currDist = Math.abs(selected.getCenterX() - curr.getCenterX());
                         if (curr != selected) {
                            //Make sure in the north quadrant
                            if (dirDist >= currDist) {
@@ -110,7 +110,7 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = selected.getY() - curr.getY();
+                        dirDist = selected.getCenterY() - curr.getCenterY();
                         if (curr != selected && dirDist > 0) {
                            currDist = Math.abs(dirDist);
                            if (currDist < bestDist) {
@@ -146,8 +146,8 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = curr.getY() - selected.getY();
-                        currDist = Math.abs(selected.getX() - curr.getX());
+                        dirDist = curr.getCenterY() - selected.getCenterY();
+                        currDist = Math.abs(selected.getCenterX() - curr.getCenterX());
                         if (curr != selected) {
                            //Make sure in the south quadrant
                            if (dirDist >= currDist) {
@@ -174,7 +174,7 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = curr.getY() - selected.getY();
+                        dirDist = curr.getCenterY() - selected.getCenterY();
                         if (curr != selected && dirDist > 0) {
                            currDist = Math.abs(dirDist);
                            if (currDist < bestDist) {
@@ -212,8 +212,8 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = selected.getX() - curr.getX();
-                        currDist = Math.abs(selected.getY() - curr.getY());
+                        dirDist = selected.getCenterX() - curr.getCenterX();
+                        currDist = Math.abs(selected.getCenterY() - curr.getCenterY());
                         if (curr != selected) {
                            //Make sure in the west quadrant
                            if (dirDist >= currDist) {
@@ -240,7 +240,7 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = selected.getX() - curr.getX();
+                        dirDist = selected.getCenterX() - curr.getCenterX();
                         if (curr != selected && dirDist > 0) {
                            currDist = Math.abs(dirDist);
                            if (currDist < bestDist) {
@@ -276,8 +276,8 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = curr.getX() - selected.getX();
-                        currDist = Math.abs(selected.getY() - curr.getY());
+                        dirDist = curr.getCenterX() - selected.getCenterX();
+                        currDist = Math.abs(selected.getCenterY() - curr.getCenterY());
                         if (curr != selected) {
                            //Make sure in the east quadrant
                            if (dirDist >= currDist) {
@@ -304,7 +304,7 @@ public class LiveMenu extends GameMode {
                      SelectableElement curr;
                      for (int i = 0; i < sel.size(); i++) {
                         curr = sel.get(i);
-                        dirDist = selected.getX() - curr.getX();
+                        dirDist = selected.getCenterX() - curr.getCenterX();
                         if (curr != selected && dirDist > 0) {
                            currDist = Math.abs(dirDist);
                            if (currDist < bestDist) {
@@ -392,18 +392,34 @@ public class LiveMenu extends GameMode {
 
    @Override
    public void render(Graphics2D g) {
+      if(parentRendering && parentBuffer == null){
+         parentBuffer = new BufferedImage(AQEngine.getWidth(), AQEngine.getHeight(), BufferedImage.TYPE_INT_ARGB);
+      }
+      if (frame < FRAME_LENGTH && !leaving) {
+         frame++;
+      }else if(leaving && frame > 0){
+         frame--;
+      }
       final int round = 3;
       if (parentRendering) {
-         parent.render(g);
+         Graphics2D g2 = parentBuffer.createGraphics();
+         parent.render(g2);
+         if(feint != null){
+            g2.setColor(feint);
+            g2.fillRect(0, 0, AQEngine.getWidth(), AQEngine.getHeight());
+         }
+         g.drawImage(parentBuffer, 0, 0, null);
       }
       if (backdrop != null) {
          int x = (AQEngine.getWidth()-backdrop.getWidth())/2;
          int y = (AQEngine.getHeight()-backdrop.getHeight())/2;
-         g.setColor(Color.BLACK);
-         g.fillRect(0, 0, AQEngine.getWidth(), y);
-         g.fillRect(0, AQEngine.getHeight()-y-1, AQEngine.getWidth(), y+1);
-         g.fillRect(0, y, x, AQEngine.getHeight()-2*y);
-         g.fillRect(AQEngine.getWidth()-x-1, y, x+1, AQEngine.getHeight()-2*y);
+         if(!parentRendering){
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, AQEngine.getWidth(), y);
+            g.fillRect(0, AQEngine.getHeight()-y-1, AQEngine.getWidth(), y+1);
+            g.fillRect(0, y, x, AQEngine.getHeight()-2*y);
+            g.fillRect(AQEngine.getWidth()-x-1, y, x+1, AQEngine.getHeight()-2*y);
+         }
          g.drawImage(backdrop, x, y, null);
       }
       for (int i = 0; i < blocks.size(); i++) {
@@ -425,13 +441,8 @@ public class LiveMenu extends GameMode {
       if (parentRunning) {
          parent.update();
       }
-      if (frame < FRAME_LENGTH && !leaving) {
-         frame++;
-      }
       if (leaving) {
-         if (frame > 0) {
-            frame--;
-         } else {
+         if (frame <= 0){
             System.out.println("yup");
             if (whereTo == null) {
                AQEngine.setMode(escape());

@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author Kevin
  */
 public abstract class AreaTemplate {
-   protected static BattleMode battle;
+   protected BattleMode battle;
    
    protected ArrayList<Hex> listOut;
    

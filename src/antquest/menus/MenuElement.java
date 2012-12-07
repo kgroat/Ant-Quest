@@ -33,5 +33,13 @@ public abstract class MenuElement {
       return y;
    }
    
+   public void setX(int tx){
+      x = tx;
+   }
+   
+   public void setY(int ty){
+      y = ty;
+   }
+   
    public abstract void render(Graphics2D g);
 }

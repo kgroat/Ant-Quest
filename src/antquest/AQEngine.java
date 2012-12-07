@@ -4,6 +4,7 @@
  */
 package antquest;
 
+import antquest.menus.ConfirmMenu;
 import antquest.menus.MainMenu;
 import java.awt.Color;
 import java.awt.Font;
@@ -26,7 +27,7 @@ public final class AQEngine {
    private static int LOGIC_DELAY = 33;
    private static int PAINT_DELAY = 33;
    private static final Object MODE_KEY = new Object();
-   private static Timer mainLoop, renderLoop;
+   private static Timer mainLoop, renderLoop, keyPresser;
    private static GameMode currentMode;
    private static BufferedImage buffer1, buffer2;
    private static boolean running;
@@ -44,7 +45,7 @@ public final class AQEngine {
    static void start() {
       running = true;
       resize();
-      nice = false;
+      nice = true;
       renderFrameLengths = new ArrayList();
       playFrameLengths = new ArrayList();
       currentMode = new MainMenu();
@@ -76,7 +77,7 @@ public final class AQEngine {
       buffer2 = new BufferedImage(vWidth, vHeight, BufferedImage.TYPE_INT_RGB);
    }
 
-   static void pressKey(KeyEvent e) {
+   static void pressKey(final KeyEvent e) {
       synchronized (MODE_KEY) {
          if (currentMode != null) {
             currentMode.press(e);
@@ -112,12 +113,12 @@ public final class AQEngine {
             BufferedImage temp = buffer2;
             Graphics2D g = buffer1.createGraphics();
             if(nice){
-               g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+               //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+               g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             }else{
-               g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+               g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
             }
+               g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             currentMode.render(g);
             buffer2 = buffer1;
             buffer1 = temp;
@@ -205,5 +206,9 @@ public final class AQEngine {
    
    public static long randLong(){
       return rand.nextLong();
+   }
+   
+   public static void confirm(Runnable r){
+      currentMode = new ConfirmMenu(currentMode, r);
    }
 }
