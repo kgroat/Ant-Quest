@@ -43,7 +43,7 @@ public class QuittingMode extends LiveMenu{
          }
       };
       block.add(element);
-      element = new SelectableElement("Screw this!", null, cx+110, cy+45, TextElement.CENTER) {
+      element = new SelectableElement("YES!  I'm outta here!", null, cx+110, cy+45, TextElement.CENTER) {
 
          @Override
          public void confirm() {
