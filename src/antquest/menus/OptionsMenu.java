@@ -5,6 +5,7 @@
 package antquest.menus;
 
 import antquest.AQEngine;
+import antquest.AudioClip;
 import antquest.GameMode;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -16,7 +17,7 @@ import java.awt.image.BufferedImage;
  */
 public class OptionsMenu extends LiveMenu {
    
-    int bgm, sfx;  //track the old settings for BGM and SFX volume.  Used for cancelling.
+   private float bgm, sfx;  //track the old settings for BGM and SFX volume.  Used for cancelling.
     
    public OptionsMenu(GameMode p, BufferedImage bi){
       super(p, bi);
@@ -34,6 +35,8 @@ public class OptionsMenu extends LiveMenu {
          g.fillRect(0, 0, AQEngine.getWidth(), AQEngine.getHeight());
       }
       int cx = 50, cy = 50, cw = AQEngine.getWidth()-100, ch = AQEngine.getHeight()-100;
+      bgm = AudioClip.getSubGain(AudioClip.ClipType.music);
+      sfx = AudioClip.getSubGain(AudioClip.ClipType.sfx);
       MenuBlock block = new MenuBlock(this, cx, cy, cw, ch);
       blocks.add(block);
       MenuElement element = new ProgressbarElement(cx+10, cy+10, cw-20, 32, 100, AQEngine.randDouble()*100);
@@ -52,7 +55,7 @@ public class OptionsMenu extends LiveMenu {
 
          @Override
          public void confirm() {
-            System.out.println(text);
+            
          }
       };
       block.add(element);

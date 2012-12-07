@@ -27,7 +27,7 @@ public class AudioClip {
 
    public static final double DISTANCER = 100;
    
-   protected enum ClipType {
+   public enum ClipType {
 
       sfx, music
    };
