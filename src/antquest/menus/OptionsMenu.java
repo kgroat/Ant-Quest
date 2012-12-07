@@ -12,10 +12,12 @@ import java.awt.image.BufferedImage;
 
 /**
  *
- * @author Kevin
+ * @author Kevin, Clem
  */
 public class OptionsMenu extends LiveMenu {
    
+    int bgm, sfx;  //track the old settings for BGM and SFX volume.  Used for cancelling.
+    
    public OptionsMenu(GameMode p, BufferedImage bi){
       super(p, bi);
       final OptionsMenu t = this;
@@ -36,7 +38,7 @@ public class OptionsMenu extends LiveMenu {
       blocks.add(block);
       MenuElement element = new ProgressbarElement(cx+10, cy+10, cw-20, 32, 100, AQEngine.randDouble()*100);
       block.add(element);
-      element = new SelectableElement("FIRST OPTION (Key bindings)", TextElement.MENU_FONT, cx+cw/2, cy+ch/5, TextElement.CENTER) {
+      element = new SelectableElement("Keybindings", TextElement.MENU_FONT, cx+cw/2, cy+ch/8, TextElement.CENTER) {
 
          @Override
          public void confirm() {
@@ -46,7 +48,7 @@ public class OptionsMenu extends LiveMenu {
          }
       };
       block.add(element);
-      element = new SelectableElement("The next one!", TextElement.MENU_FONT, cx+cw/2, cy+2*ch/5, TextElement.CENTER) {
+      element = new SelectableElement("SFX Volume", TextElement.MENU_FONT, cx+cw/2, cy+2*ch/8, TextElement.CENTER) {
 
          @Override
          public void confirm() {
@@ -54,7 +56,7 @@ public class OptionsMenu extends LiveMenu {
          }
       };
       block.add(element);
-      element = new SelectableElement("And a THIRD!", TextElement.MENU_FONT, cx+cw/2, cy+3*ch/5, TextElement.CENTER) {
+      element = new SelectableElement("BGM Volume", TextElement.MENU_FONT, cx+cw/2, cy+3*ch/8, TextElement.CENTER) {
 
          @Override
          public void confirm() {
@@ -62,13 +64,23 @@ public class OptionsMenu extends LiveMenu {
          }
       };
       block.add(element);
-      element = new SelectableElement("WAT AM I DOIN HURR?", TextElement.MENU_FONT, cx+cw/2, cy+4*ch/5, TextElement.CENTER) {
+      element = new SelectableElement("Save and Return", TextElement.MENU_FONT, cx+cw/2, cy+4*ch/8, TextElement.CENTER) {
 
          @Override
          public void confirm() {
             whereTo = parent;
             leaving = true;
          }
+      };
+      block.add(element);
+      element = new SelectableElement("Cancel!", TextElement.MENU_FONT, cx+cw/2, cy+4*ch/8, TextElement.CENTER)
+      {
+          @Override
+          public void confirm()
+          {
+              whereTo = parent;
+              leaving = true;
+          }
       };
       block.add(element);
       selectDefault();
